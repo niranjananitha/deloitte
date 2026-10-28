@@ -1,0 +1,2040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Market Quest — Learn. Trade. Survive. Master the Market.</title>
+<style>
+:root {
+  --bg-primary: #0a0e17;
+  --bg-secondary: #111827;
+  --bg-card: #1a2235;
+  --bg-card-hover: #1e2a42;
+  --bg-input: #0d1320;
+  --text-primary: #e8ecf4;
+  --text-secondary: #8891a5;
+  --text-muted: #5c6478;
+  --accent: #3b82f6;
+  --accent-glow: rgba(59,130,246,.25);
+  --accent-secondary: #6366f1;
+  --green: #10b981;
+  --green-dim: rgba(16,185,129,.15);
+  --red: #ef4444;
+  --red-dim: rgba(239,68,68,.15);
+  --yellow: #f59e0b;
+  --yellow-dim: rgba(245,158,11,.15);
+  --purple: #a855f7;
+  --border: #1e293b;
+  --border-light: #2a3548;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --radius-lg: 14px;
+  --shadow: 0 4px 24px rgba(0,0,0,.35);
+  --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --mono: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-padding-top: env(safe-area-inset-top, 0px); height: 100%; }
+body {
+  font-family: var(--font);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100%;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+button { font-family: inherit; cursor: pointer; border: none; outline: none; }
+input, textarea, select { font-family: inherit; outline: none; }
+a { color: var(--accent); text-decoration: none; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
+
+/* Layout */
+.app { max-width: 1200px; margin: 0 auto; padding: 0 16px 80px; }
+.screen { display: none; }
+.screen.active { display: block; animation: fadeIn .3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Top Nav */
+.topnav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 0; border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; background: var(--bg-primary); z-index: 100;
+  margin-bottom: 20px;
+}
+.topnav-brand { font-size: 18px; font-weight: 700; letter-spacing: -.5px; display: flex; align-items: center; gap: 8px; }
+.topnav-brand svg { width: 28px; height: 28px; }
+.topnav-stats { display: flex; gap: 16px; align-items: center; font-size: 13px; }
+.topnav-stat { display: flex; align-items: center; gap: 4px; color: var(--text-secondary); }
+.topnav-stat .val { color: var(--text-primary); font-weight: 600; }
+.topnav-stat .xp { color: var(--yellow); }
+.topnav-stat .cash { color: var(--green); }
+
+/* Bottom Nav */
+.bottomnav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--bg-secondary); border-top: 1px solid var(--border);
+  display: flex; justify-content: space-around; padding: 6px 0;
+  padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px));
+  z-index: 100;
+}
+.bottomnav button {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  background: none; color: var(--text-muted); font-size: 10px; padding: 6px 12px;
+  border-radius: var(--radius-sm); transition: color .2s;
+}
+.bottomnav button.active { color: var(--accent); }
+.bottomnav button svg { width: 22px; height: 22px; }
+
+/* Cards */
+.card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px;
+}
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.card-title { font-size: 15px; font-weight: 600; }
+.card-subtitle { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 10px 20px; border-radius: var(--radius); font-size: 14px; font-weight: 600;
+  transition: all .2s;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: #2563eb; box-shadow: 0 0 20px var(--accent-glow); }
+.btn-secondary { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-light); }
+.btn-secondary:hover { background: var(--bg-card-hover); }
+.btn-success { background: var(--green); color: #fff; }
+.btn-danger { background: var(--red); color: #fff; }
+.btn-sm { padding: 6px 14px; font-size: 12px; }
+.btn-lg { padding: 14px 28px; font-size: 16px; }
+.btn-block { width: 100%; }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+
+/* Badge */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+}
+.badge-green { background: var(--green-dim); color: var(--green); }
+.badge-red { background: var(--red-dim); color: var(--red); }
+.badge-yellow { background: var(--yellow-dim); color: var(--yellow); }
+.badge-blue { background: var(--accent-glow); color: var(--accent); }
+
+/* Progress bar */
+.progress-bar { background: var(--bg-input); border-radius: 6px; height: 8px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 6px; transition: width .5s ease; }
+.progress-fill.blue { background: linear-gradient(90deg, var(--accent), var(--accent-secondary)); }
+.progress-fill.green { background: var(--green); }
+.progress-fill.yellow { background: var(--yellow); }
+
+/* Grid */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+@media (max-width: 600px) {
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+}
+
+/* Stat boxes */
+.stat-box { text-align: center; padding: 14px; }
+.stat-val { font-size: 22px; font-weight: 700; }
+.stat-label { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+/* Stock list item */
+.stock-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 16px; border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: background .15s;
+}
+.stock-item:hover { background: var(--bg-card-hover); }
+.stock-item:last-child { border-bottom: none; }
+.stock-name { font-weight: 600; font-size: 14px; }
+.stock-ticker { font-size: 11px; color: var(--text-secondary); font-family: var(--mono); }
+.stock-price { font-weight: 600; font-size: 14px; text-align: right; }
+.stock-change { font-size: 12px; }
+.stock-change.up { color: var(--green); }
+.stock-change.down { color: var(--red); }
+
+/* Chart container */
+.chart-container { position: relative; width: 100%; height: 250px; background: var(--bg-input); border-radius: var(--radius); overflow: hidden; }
+.chart-canvas { width: 100%; height: 100%; }
+
+/* Quiz */
+.quiz-option {
+  display: block; width: 100%; text-align: left; padding: 14px 18px;
+  background: var(--bg-card); border: 1px solid var(--border-light);
+  border-radius: var(--radius); margin-bottom: 10px; color: var(--text-primary);
+  font-size: 14px; transition: all .15s;
+}
+.quiz-option:hover:not(:disabled) { border-color: var(--accent); background: var(--bg-card-hover); }
+.quiz-option.correct { border-color: var(--green); background: var(--green-dim); }
+.quiz-option.wrong { border-color: var(--red); background: var(--red-dim); }
+.quiz-option:disabled { cursor: default; }
+
+/* Chat */
+.chat-container { display: flex; flex-direction: column; height: calc(100vh - 200px); max-height: 600px; }
+.chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.chat-msg { max-width: 80%; padding: 10px 14px; border-radius: var(--radius); font-size: 14px; line-height: 1.5; }
+.chat-msg.bot { align-self: flex-start; background: var(--bg-card); border: 1px solid var(--border); }
+.chat-msg.user { align-self: flex-end; background: var(--accent); color: #fff; }
+.chat-input-row { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--border); }
+.chat-input {
+  flex: 1; padding: 10px 14px; background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: var(--radius); color: var(--text-primary); font-size: 14px;
+}
+
+/* Modal */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7);
+  z-index: 200; align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: var(--bg-secondary); border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg); padding: 28px; max-width: 500px; width: 100%;
+  box-shadow: var(--shadow); animation: fadeIn .2s ease;
+}
+.modal h2 { font-size: 20px; margin-bottom: 12px; }
+.modal p { color: var(--text-secondary); font-size: 14px; margin-bottom: 16px; }
+
+/* Tooltip */
+.tooltip-term {
+  border-bottom: 1px dashed var(--accent); cursor: help; color: var(--accent);
+}
+.tooltip-popup {
+  display: none; position: fixed; background: var(--bg-secondary);
+  border: 1px solid var(--border-light); border-radius: var(--radius);
+  padding: 14px; max-width: 300px; z-index: 300; box-shadow: var(--shadow);
+  font-size: 13px; line-height: 1.5;
+}
+.tooltip-popup.show { display: block; }
+.tooltip-popup h4 { color: var(--accent); margin-bottom: 4px; font-size: 14px; }
+
+/* Tabs */
+.tabs { display: flex; gap: 2px; margin-bottom: 16px; overflow-x: auto; }
+.tab-btn {
+  padding: 8px 16px; background: none; color: var(--text-muted); font-size: 13px;
+  font-weight: 600; border-bottom: 2px solid transparent; white-space: nowrap;
+  transition: all .2s;
+}
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* Lesson */
+.lesson-content { font-size: 15px; line-height: 1.8; color: var(--text-secondary); }
+.lesson-content h3 { color: var(--text-primary); margin: 16px 0 8px; }
+.lesson-analogy {
+  background: var(--accent-glow); border-left: 3px solid var(--accent);
+  padding: 14px 18px; border-radius: 0 var(--radius) var(--radius) 0;
+  margin: 12px 0; font-size: 14px; color: var(--text-primary);
+}
+.lesson-step-indicator {
+  display: flex; gap: 8px; margin-bottom: 20px; align-items: center;
+}
+.step-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--border-light); transition: background .3s;
+}
+.step-dot.active { background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+.step-dot.done { background: var(--green); }
+
+/* Achievement card */
+.achievement {
+  display: flex; align-items: center; gap: 14px; padding: 14px;
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+  margin-bottom: 8px;
+}
+.achievement.locked { opacity: .4; }
+.achievement-icon { font-size: 28px; width: 44px; text-align: center; }
+.achievement-info h4 { font-size: 14px; }
+.achievement-info p { font-size: 12px; color: var(--text-secondary); }
+
+/* Portfolio holding */
+.holding-row {
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 8px;
+  padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 13px;
+  align-items: center;
+}
+.holding-row.header { color: var(--text-muted); font-size: 11px; font-weight: 600; border-bottom: 1px solid var(--border-light); }
+@media (max-width: 500px) { .holding-row { grid-template-columns: 1fr 1fr; } .holding-row > :nth-child(3), .holding-row.header > :nth-child(3) { display: none; } }
+
+/* Disclaimer */
+.disclaimer {
+  background: var(--yellow-dim); border: 1px solid rgba(245,158,11,.3);
+  border-radius: var(--radius); padding: 10px 14px; font-size: 11px;
+  color: var(--yellow); margin: 12px 0; text-align: center;
+}
+
+/* World map */
+.world-item {
+  display: flex; align-items: center; gap: 14px; padding: 14px 16px;
+  border-bottom: 1px solid var(--border); cursor: pointer; transition: background .15s;
+}
+.world-item:hover { background: var(--bg-card-hover); }
+.world-item.locked { opacity: .45; pointer-events: none; }
+.world-icon { font-size: 28px; width: 44px; text-align: center; }
+.world-info h4 { font-size: 14px; margin-bottom: 2px; }
+.world-info p { font-size: 12px; color: var(--text-secondary); }
+.world-progress { margin-left: auto; font-size: 12px; color: var(--text-muted); }
+
+/* Trade panel */
+.trade-panel {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 20px;
+}
+.trade-input {
+  width: 100%; padding: 10px 14px; background: var(--bg-input);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  color: var(--text-primary); font-size: 16px; margin: 8px 0;
+}
+.trade-tabs { display: flex; margin-bottom: 14px; }
+.trade-tab {
+  flex: 1; padding: 10px; text-align: center; font-weight: 600; font-size: 14px;
+  border-bottom: 2px solid var(--border);
+}
+.trade-tab.active-buy { color: var(--green); border-bottom-color: var(--green); }
+.trade-tab.active-sell { color: var(--red); border-bottom-color: var(--red); }
+
+/* Onboarding */
+.onboarding {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; min-height: 80vh; text-align: center; padding: 20px;
+}
+.onboarding h1 { font-size: 36px; font-weight: 800; margin-bottom: 8px; letter-spacing: -1px; }
+.onboarding .subtitle { font-size: 16px; color: var(--text-secondary); margin-bottom: 30px; }
+.onboarding-options { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 400px; }
+.onboarding-opt {
+  padding: 14px 20px; background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); color: var(--text-primary); font-size: 15px;
+  text-align: left; transition: all .2s;
+}
+.onboarding-opt:hover { border-color: var(--accent); background: var(--bg-card-hover); }
+
+/* Responsive overrides */
+@media (max-width: 768px) {
+  .topnav-stats { gap: 10px; }
+  .topnav-stat span:not(.val) { display: none; }
+  .app { padding: 0 12px 80px; }
+  .stat-val { font-size: 18px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Top Navigation -->
+<div class="topnav" id="topnav" style="display:none;">
+  <div class="topnav-brand">
+    <svg viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="6" fill="#3b82f6"/><path d="M7 18L11 10L15 15L19 8L22 13" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Market Quest
+  </div>
+  <div class="topnav-stats">
+    <div class="topnav-stat"><span>Lv</span><span class="val" id="nav-level">1</span></div>
+    <div class="topnav-stat"><span class="val xp" id="nav-xp">0</span><span>XP</span></div>
+    <div class="topnav-stat"><span>₹</span><span class="val cash" id="nav-cash">1,00,000</span></div>
+  </div>
+</div>
+
+<div class="app">
+
+<!-- ========== ONBOARDING SCREEN ========== -->
+<div class="screen" id="screen-onboarding">
+  <div class="onboarding">
+    <svg viewBox="0 0 64 64" fill="none" width="64" height="64" style="margin-bottom:16px"><rect width="64" height="64" rx="14" fill="#3b82f6"/><path d="M14 42L22 22L32 34L42 16L52 30" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <h1>Market Quest</h1>
+    <p class="subtitle">Learn. Trade. Survive. Master the Market.</p>
+    <div id="onboarding-step1">
+      <p style="color:var(--text-secondary);margin-bottom:20px;font-size:15px;">How much do you know about the stock market?</p>
+      <div class="onboarding-options">
+        <button class="onboarding-opt" onclick="startGame(0)">Nothing — I'm completely new</button>
+        <button class="onboarding-opt" onclick="startGame(1)">I know the basics</button>
+        <button class="onboarding-opt" onclick="startGame(2)">I've traded before</button>
+        <button class="onboarding-opt" onclick="startGame(3)">I'm comfortable with financial concepts</button>
+      </div>
+    </div>
+    <div class="disclaimer" style="max-width:420px;margin-top:24px;">Educational Simulation — Not Financial Advice</div>
+  </div>
+</div>
+
+<!-- ========== HOME SCREEN ========== -->
+<div class="screen" id="screen-home">
+  <div class="card" style="background:linear-gradient(135deg,#1a2a4a,#1a2235);border-color:#2a3a5a;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+      <div>
+        <div style="font-size:12px;color:var(--text-secondary);">Portfolio Value</div>
+        <div style="font-size:28px;font-weight:800;letter-spacing:-1px;" id="home-portfolio-val">₹1,00,000</div>
+        <div id="home-pnl" class="badge badge-green" style="margin-top:4px;">+₹0 (0.0%)</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:12px;color:var(--text-secondary);">Level <span id="home-level">1</span></div>
+        <div style="font-size:13px;color:var(--yellow);font-weight:700;" id="home-level-name">Market Rookie</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:4px;" id="home-xp-text">0 / 100 XP</div>
+        <div class="progress-bar" style="width:120px;margin-top:4px;"><div class="progress-fill blue" id="home-xp-bar" style="width:0%;"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card stat-box">
+      <div class="stat-val" style="color:var(--green);" id="home-cash">₹1,00,000</div>
+      <div class="stat-label">Virtual Cash</div>
+    </div>
+    <div class="card stat-box">
+      <div class="stat-val" id="home-streak">0 🔥</div>
+      <div class="stat-label">Day Streak</div>
+    </div>
+  </div>
+
+  <!-- Daily Mission -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Daily Mission</span>
+      <span class="badge badge-yellow" id="home-mission-status">Active</span>
+    </div>
+    <p style="font-size:14px;color:var(--text-secondary);" id="home-mission-text">Complete 1 lesson</p>
+    <div class="progress-bar" style="margin-top:10px;"><div class="progress-fill yellow" id="home-mission-bar" style="width:0%;"></div></div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div style="display:flex;flex-direction:column;gap:10px;">
+    <button class="btn btn-primary btn-block btn-lg" onclick="navigate('learn')">📚 Continue Learning</button>
+    <button class="btn btn-secondary btn-block" onclick="navigate('simulator')">📈 Enter Market Simulator</button>
+    <div class="grid-2">
+      <button class="btn btn-secondary btn-block" onclick="navigate('tutor')">🤖 Ask AI Tutor</button>
+      <button class="btn btn-secondary btn-block" onclick="navigate('practice')">🎯 Practice Arena</button>
+    </div>
+  </div>
+
+  <!-- Recent Achievements -->
+  <div class="card" style="margin-top:16px;">
+    <div class="card-title" style="margin-bottom:12px;">Recent Achievements</div>
+    <div id="home-achievements">
+      <p style="font-size:13px;color:var(--text-muted);">Complete lessons and trade to earn achievements!</p>
+    </div>
+  </div>
+</div>
+
+<!-- ========== LEARN SCREEN ========== -->
+<div class="screen" id="screen-learn">
+  <h2 style="font-size:20px;margin-bottom:16px;">Learning Worlds</h2>
+  <div class="card" style="padding:0;overflow:hidden;" id="world-list"></div>
+</div>
+
+<!-- ========== LESSON SCREEN ========== -->
+<div class="screen" id="screen-lesson">
+  <button class="btn btn-secondary btn-sm" onclick="navigate('learn')" style="margin-bottom:16px;">← Back</button>
+  <div id="lesson-header" style="margin-bottom:16px;">
+    <h2 id="lesson-title" style="font-size:20px;"></h2>
+    <p id="lesson-world" style="font-size:12px;color:var(--text-secondary);"></p>
+  </div>
+  <div class="lesson-step-indicator" id="lesson-steps"></div>
+  <div id="lesson-body" class="card"></div>
+</div>
+
+<!-- ========== SIMULATOR SCREEN ========== -->
+<div class="screen" id="screen-simulator">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+    <h2 style="font-size:20px;">Market Simulator</h2>
+    <div style="display:flex;gap:8px;">
+      <span class="badge badge-blue" id="sim-day-badge">Day 1</span>
+      <button class="btn btn-primary btn-sm" id="btn-next-day" onclick="advanceDay()">Next Market Day →</button>
+    </div>
+  </div>
+  <div class="disclaimer">Fictional companies and simulated prices — Educational purposes only</div>
+
+  <!-- Market News -->
+  <div class="card" id="market-news" style="display:none;">
+    <div class="card-title" style="color:var(--yellow);margin-bottom:6px;">📰 Market News</div>
+    <p id="news-text" style="font-size:14px;color:var(--text-secondary);"></p>
+  </div>
+
+  <!-- Stock List -->
+  <div class="card" style="padding:0;overflow:hidden;" id="stock-list"></div>
+</div>
+
+<!-- ========== STOCK DETAIL SCREEN ========== -->
+<div class="screen" id="screen-stock-detail">
+  <button class="btn btn-secondary btn-sm" onclick="navigate('simulator')" style="margin-bottom:14px;">← Market</button>
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
+    <div>
+      <h2 id="detail-name" style="font-size:22px;"></h2>
+      <span id="detail-ticker" style="font-size:12px;color:var(--text-secondary);font-family:var(--mono);"></span>
+      <span id="detail-sector" class="badge badge-blue" style="margin-left:8px;"></span>
+    </div>
+    <div style="text-align:right;">
+      <div id="detail-price" style="font-size:26px;font-weight:800;"></div>
+      <div id="detail-change" style="font-size:14px;"></div>
+    </div>
+  </div>
+
+  <!-- Chart -->
+  <div class="card">
+    <div class="tabs" id="chart-timeframe-tabs">
+      <button class="tab-btn active" onclick="setChartTimeframe('1W',this)">1W</button>
+      <button class="tab-btn" onclick="setChartTimeframe('1M',this)">1M</button>
+      <button class="tab-btn" onclick="setChartTimeframe('3M',this)">3M</button>
+      <button class="tab-btn" onclick="setChartTimeframe('ALL',this)">All</button>
+    </div>
+    <div class="chart-container"><canvas id="price-chart" class="chart-canvas"></canvas></div>
+  </div>
+
+  <!-- Company Info -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title" style="margin-bottom:10px;">Key Stats</div>
+      <div id="detail-stats" style="font-size:13px;color:var(--text-secondary);"></div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="margin-bottom:10px;">Risk Profile</div>
+      <div id="detail-risk" style="font-size:13px;color:var(--text-secondary);"></div>
+    </div>
+  </div>
+
+  <!-- Trade Panel -->
+  <div class="trade-panel">
+    <div class="trade-tabs">
+      <button class="trade-tab active-buy" id="trade-buy-tab" onclick="setTradeMode('buy')">Buy</button>
+      <button class="trade-tab" id="trade-sell-tab" onclick="setTradeMode('sell')">Sell</button>
+    </div>
+    <div style="font-size:13px;color:var(--text-secondary);margin-bottom:4px;">Quantity</div>
+    <input type="number" class="trade-input" id="trade-qty" min="1" value="1" onchange="updateTradePreview()" oninput="updateTradePreview()">
+    <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text-secondary);margin:8px 0;">
+      <span>Total Cost</span><span id="trade-total" style="color:var(--text-primary);font-weight:600;">₹0</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text-secondary);margin-bottom:12px;">
+      <span>Available Cash</span><span id="trade-cash" style="color:var(--green);">₹0</span>
+    </div>
+    <!-- Journal -->
+    <div style="margin-bottom:12px;">
+      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;">Why are you making this trade? (optional journal)</div>
+      <textarea id="trade-journal" class="trade-input" rows="2" placeholder="Record your reasoning..." style="resize:vertical;font-size:13px;"></textarea>
+    </div>
+    <button class="btn btn-success btn-block" id="trade-execute-btn" onclick="executeTrade()">Buy</button>
+  </div>
+</div>
+
+<!-- ========== PORTFOLIO SCREEN ========== -->
+<div class="screen" id="screen-portfolio">
+  <h2 style="font-size:20px;margin-bottom:16px;">Portfolio</h2>
+  <div class="grid-2">
+    <div class="card stat-box">
+      <div class="stat-val" id="port-total-val">₹1,00,000</div>
+      <div class="stat-label">Total Value</div>
+    </div>
+    <div class="card stat-box">
+      <div class="stat-val" style="color:var(--green);" id="port-cash">₹1,00,000</div>
+      <div class="stat-label">Cash</div>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="card stat-box">
+      <div class="stat-val" id="port-invested">₹0</div>
+      <div class="stat-label">Invested</div>
+    </div>
+    <div class="card stat-box">
+      <div class="stat-val" id="port-pnl">₹0</div>
+      <div class="stat-label">Total P&L</div>
+    </div>
+  </div>
+
+  <!-- Allocation Chart -->
+  <div class="card">
+    <div class="card-title" style="margin-bottom:10px;">Portfolio Allocation</div>
+    <div class="chart-container" style="height:200px;"><canvas id="alloc-chart" class="chart-canvas"></canvas></div>
+  </div>
+
+  <!-- Holdings -->
+  <div class="card">
+    <div class="card-title" style="margin-bottom:12px;">Holdings</div>
+    <div class="holding-row header">
+      <span>Stock</span><span>Qty</span><span>Avg Price</span><span>P&L</span>
+    </div>
+    <div id="holdings-list">
+      <p style="font-size:13px;color:var(--text-muted);padding:12px 0;">No holdings yet. Start trading!</p>
+    </div>
+  </div>
+
+  <!-- Journal -->
+  <div class="card">
+    <div class="card-title" style="margin-bottom:12px;">Trade Journal</div>
+    <div id="journal-list">
+      <p style="font-size:13px;color:var(--text-muted);">Your trade notes will appear here.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ========== AI TUTOR SCREEN ========== -->
+<div class="screen" id="screen-tutor">
+  <h2 style="font-size:20px;margin-bottom:4px;">🤖 Market Mentor</h2>
+  <p style="font-size:12px;color:var(--text-secondary);margin-bottom:14px;">Your AI-powered financial tutor</p>
+  <div class="card chat-container" style="padding:0;">
+    <div class="chat-messages" id="chat-messages">
+      <div class="chat-msg bot">Welcome to Market Mentor! I can help you understand stocks, investing, and financial concepts. Ask me anything — for example, "What is P/E ratio?" or "Explain diversification."</div>
+    </div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="chat-input" placeholder="Ask a question..." onkeydown="if(event.key==='Enter')sendChat()">
+      <button class="btn btn-primary btn-sm" onclick="sendChat()">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PRACTICE ARENA SCREEN ========== -->
+<div class="screen" id="screen-practice">
+  <h2 style="font-size:20px;margin-bottom:4px;">🎯 Practice Arena</h2>
+  <p style="font-size:12px;color:var(--text-secondary);margin-bottom:16px;">Test your knowledge with adaptive questions</p>
+  <div class="card" id="practice-area">
+    <div id="practice-score" style="display:flex;justify-content:space-between;margin-bottom:16px;">
+      <span class="badge badge-green" id="practice-correct">Correct: 0</span>
+      <span class="badge badge-red" id="practice-wrong">Wrong: 0</span>
+      <span class="badge badge-blue" id="practice-streak-badge">Streak: 0</span>
+    </div>
+    <div id="practice-question"></div>
+    <button class="btn btn-primary btn-block" id="practice-next-btn" onclick="generatePracticeQ()" style="margin-top:16px;">Start Practice</button>
+  </div>
+</div>
+
+<!-- ========== ACHIEVEMENTS SCREEN ========== -->
+<div class="screen" id="screen-achievements">
+  <h2 style="font-size:20px;margin-bottom:16px;">🏆 Achievements</h2>
+  <div id="achievements-list"></div>
+</div>
+
+<!-- ========== SETTINGS / MORE SCREEN ========== -->
+<div class="screen" id="screen-settings">
+  <h2 style="font-size:20px;margin-bottom:16px;">Settings</h2>
+  <div class="card">
+    <div class="card-title" style="margin-bottom:12px;">Progress</div>
+    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Reset all progress including XP, portfolio, lessons, and achievements.</p>
+    <button class="btn btn-danger" onclick="confirmReset()">Reset All Progress</button>
+  </div>
+  <div class="card">
+    <div class="card-title" style="margin-bottom:8px;">About</div>
+    <p style="font-size:13px;color:var(--text-secondary);">Market Quest is an educational stock-market simulation game. All companies, prices, and events are fictional. This is not financial advice.</p>
+  </div>
+</div>
+
+</div><!-- .app -->
+
+<!-- Bottom Navigation -->
+<div class="bottomnav" id="bottomnav" style="display:none;">
+  <button onclick="navigate('home')" id="bnav-home" class="active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1"/></svg>
+    Home
+  </button>
+  <button onclick="navigate('learn')" id="bnav-learn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+    Learn
+  </button>
+  <button onclick="navigate('simulator')" id="bnav-simulator">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+    Market
+  </button>
+  <button onclick="navigate('portfolio')" id="bnav-portfolio">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3zM3 9h18M9 21V9"/></svg>
+    Portfolio
+  </button>
+  <button onclick="navigate('achievements')" id="bnav-achievements">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3h14a2 2 0 012 2v2a7 7 0 01-7 7 7 7 0 01-7-7V5a2 2 0 012-2z"/><path d="M12 14v3m-3 3h6"/></svg>
+    Trophies
+  </button>
+</div>
+
+<!-- Tooltip Popup -->
+<div class="tooltip-popup" id="tooltip-popup"><h4 id="tooltip-title"></h4><p id="tooltip-body"></p></div>
+
+<!-- Modal Overlay -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<script>
+/* ================================================================
+   MARKET QUEST — Complete Stock Market Learning Simulator
+   ================================================================ */
+
+// ================================================================
+// SECTION: GLOSSARY / TOOLTIPS
+// ================================================================
+const GLOSSARY = {
+  'stock': { title: 'Stock (Share)', body: 'A unit of ownership in a company. Owning a share means you own a tiny fraction of the company and may benefit from its growth.' },
+  'share': { title: 'Share', body: 'One unit of ownership in a company. If a company has 1,000 shares and you own 10, you own 1% of it.' },
+  'ipo': { title: 'IPO (Initial Public Offering)', body: 'When a company offers its shares to the public for the first time, allowing anyone to buy ownership.' },
+  'nse': { title: 'NSE (National Stock Exchange)', body: 'India\'s largest stock exchange by trading volume. Home to the NIFTY 50 index.' },
+  'bse': { title: 'BSE (Bombay Stock Exchange)', body: 'Asia\'s oldest stock exchange, located in Mumbai. Home to the SENSEX index.' },
+  'sebi': { title: 'SEBI', body: 'Securities and Exchange Board of India — the regulatory body that oversees the stock market in India.' },
+  'demat': { title: 'Demat Account', body: 'A dematerialized account that holds your shares in electronic form, similar to how a bank account holds money.' },
+  'pe': { title: 'P/E Ratio', body: 'Price-to-Earnings ratio. Share price divided by earnings per share. Helps compare whether a stock is relatively expensive or cheap compared to its earnings. A high P/E might mean investors expect growth; a low P/E might signal undervaluation or problems.' },
+  'eps': { title: 'EPS', body: 'Earnings Per Share — the company\'s net profit divided by total number of shares. Shows how much profit each share represents.' },
+  'market cap': { title: 'Market Capitalisation', body: 'Total market value of a company = share price × total shares. Large-cap companies are typically more stable; small-cap may grow faster but carry more risk.' },
+  'volume': { title: 'Volume', body: 'Number of shares traded in a period. High volume means lots of activity; low volume means fewer trades and possibly harder to buy/sell.' },
+  'diversification': { title: 'Diversification', body: 'Spreading investments across different assets to reduce risk. If one investment falls, others may hold steady or rise.' },
+  'volatility': { title: 'Volatility', body: 'How much a price moves up and down. High volatility = bigger swings = more risk and potential reward.' },
+  'dividend': { title: 'Dividend', body: 'A payment companies make to shareholders from their profits. Not all companies pay dividends.' },
+  'bull market': { title: 'Bull Market', body: 'A period when stock prices are generally rising and investor confidence is high.' },
+  'bear market': { title: 'Bear Market', body: 'A period when stock prices are generally falling and investor confidence is low.' },
+  'portfolio': { title: 'Portfolio', body: 'Your collection of all investments — stocks, bonds, cash, etc.' },
+  'index': { title: 'Index', body: 'A measurement of the performance of a group of stocks. NIFTY 50 and SENSEX are popular Indian indices.' },
+  'candlestick': { title: 'Candlestick', body: 'A chart element showing open, high, low, close prices for a period. Green/white = price went up; Red/black = price went down.' },
+  'support': { title: 'Support', body: 'A price level where buying interest has historically been strong enough to prevent further decline.' },
+  'resistance': { title: 'Resistance', body: 'A price level where selling pressure has historically been strong enough to prevent further rise.' },
+  'moving average': { title: 'Moving Average', body: 'The average price over a set number of periods, smoothing out daily fluctuations to show trends.' },
+  'fomo': { title: 'FOMO', body: 'Fear Of Missing Out — the anxiety that others are profiting and you might miss the opportunity. Can lead to impulsive decisions.' },
+  'stop loss': { title: 'Stop Loss', body: 'An order to sell when a stock falls to a certain price, limiting potential loss. Not guaranteed to execute at the exact price in fast-moving markets.' },
+  'roe': { title: 'ROE (Return on Equity)', body: 'Net profit divided by shareholders\' equity. Shows how efficiently a company uses shareholder money to generate profit.' },
+};
+
+// ================================================================
+// SECTION: FICTIONAL COMPANIES
+// ================================================================
+const COMPANIES = [
+  { id:'ALMO', name:'Alpha Motors', sector:'Automobile', basePrice:850, volatility:0.025, risk:'Medium', revenue:12000, expenses:10200, debt:4500, cash:2100, sharesOut:100, description:'Leading electric vehicle manufacturer' },
+  { id:'BTEK', name:'BharatTech', sector:'Technology', basePrice:2200, volatility:0.03, risk:'High', revenue:8500, expenses:6800, debt:1200, cash:3400, sharesOut:50, description:'Software and cloud services giant' },
+  { id:'GGEN', name:'GreenGrid Energy', sector:'Energy', basePrice:430, volatility:0.02, risk:'Medium', revenue:6200, expenses:5100, debt:3800, cash:1500, sharesOut:150, description:'Renewable energy producer' },
+  { id:'NOVB', name:'NovaBank', sector:'Banking', basePrice:1100, volatility:0.018, risk:'Medium', revenue:9800, expenses:7400, debt:8200, cash:5600, sharesOut:80, description:'Large private sector bank' },
+  { id:'MEDC', name:'MedCore', sector:'Healthcare', basePrice:1650, volatility:0.022, risk:'Medium', revenue:5400, expenses:4100, debt:900, cash:2800, sharesOut:40, description:'Pharmaceutical and diagnostics company' },
+  { id:'SKRT', name:'SkyRetail', sector:'Retail', basePrice:520, volatility:0.028, risk:'High', revenue:15000, expenses:14100, debt:2100, cash:900, sharesOut:200, description:'E-commerce and retail chain' },
+  { id:'QSYS', name:'Quantum Systems', sector:'Technology', basePrice:3100, volatility:0.035, risk:'Very High', revenue:4200, expenses:3900, debt:600, cash:4100, sharesOut:30, description:'AI and quantum computing research' },
+  { id:'FFDS', name:'FreshFoods', sector:'FMCG', basePrice:310, volatility:0.015, risk:'Low', revenue:18000, expenses:16200, debt:1800, cash:3200, sharesOut:250, description:'Consumer food and beverages' },
+  { id:'INFB', name:'InfraBuild', sector:'Infrastructure', basePrice:680, volatility:0.02, risk:'Medium', revenue:11000, expenses:9800, debt:5500, cash:1800, sharesOut:120, description:'Construction and infrastructure development' },
+  { id:'OCLG', name:'Ocean Logistics', sector:'Logistics', basePrice:490, volatility:0.022, risk:'Medium', revenue:7600, expenses:6700, debt:2400, cash:1600, sharesOut:90, description:'Shipping and supply chain services' },
+];
+
+// ================================================================
+// SECTION: LESSON DATA
+// ================================================================
+const WORLDS = [
+  { id:1, name:'Market Rookie', icon:'🌱', lessons: [
+    { id:'w1l1', title:'What is a Stock?', content: {
+      discover: `<h3>Imagine a Pizza 🍕</h3><div class="lesson-analogy">Imagine a company is a whole pizza. If the pizza is divided into 1,000 slices, each slice is one <span class="tooltip-term" data-term="share">share</span>.<br><br>If you own 10 slices, you own 1% of the pizza — 1% of the company!</div><p>A <span class="tooltip-term" data-term="stock">stock</span> (or share) represents a small piece of ownership in a company. When you buy a stock, you become a part-owner of that company.</p><p>Companies sell shares to raise money for growth, new products, and expansion. In return, shareholders may benefit if the company does well — through rising share prices or <span class="tooltip-term" data-term="dividend">dividends</span>.</p>`,
+      interact: { type:'choice', question:'A company has 10,000 shares. You buy 100. What percentage do you own?', options:['0.1%','1%','5%','10%'], correct:1, explain:'100 out of 10,000 = 100/10,000 = 0.01 = 1%. You own 1% of the company.' },
+      quiz: [
+        { q:'What does owning a share mean?', opts:['You lent money to the company','You own a small piece of the company','You work for the company','You can control the company'], ans:1, explain:'A share represents partial ownership. You don\'t control the company or work for it — you own a tiny fraction of it.' },
+        { q:'Why do companies issue shares?', opts:['To give away free money','To raise capital for growth','Because the government requires it','To reduce their profits'], ans:1, explain:'Companies issue shares primarily to raise money (capital) that they can use for expansion, research, or other business needs.' }
+      ]
+    }},
+    { id:'w1l2', title:'What is a Company?', content: {
+      discover: `<h3>Companies and Business</h3><p>A company is an organization that creates products or services and sells them to earn money. Companies can be tiny (a local shop) or massive (employing millions).</p><div class="lesson-analogy">Think of a company like a lemonade stand that grew up. It started small, hired people, opened more stands, and eventually became big enough that it needs more money to keep growing — that's when it might sell shares!</div><p>Companies are organized into <b>sectors</b> — groups of similar businesses like Technology, Banking, Healthcare, Energy, etc.</p>`,
+      interact: { type:'choice', question:'Which of these is a sector?', options:['Pizza','Technology','Homework','Weekend'], correct:1, explain:'Technology is a sector — a category of companies that work in similar areas like software, hardware, and IT services.' },
+      quiz: [
+        { q:'A company earns ₹500 crore in revenue and spends ₹400 crore. What is the profit?', opts:['₹500 crore','₹400 crore','₹100 crore','₹900 crore'], ans:2, explain:'Profit = Revenue - Expenses = ₹500 - ₹400 = ₹100 crore.' }
+      ]
+    }},
+    { id:'w1l3', title:'What is a Stock Exchange?', content: {
+      discover: `<h3>The Marketplace for Stocks</h3><div class="lesson-analogy">A stock exchange is like a big marketplace — but instead of vegetables and clothes, people buy and sell shares of companies. Just like a market has rules, opening hours, and a manager, stock exchanges have regulations and operate during fixed hours.</div><p>In India, the two main exchanges are:</p><p>🏛️ <span class="tooltip-term" data-term="nse">NSE</span> (National Stock Exchange) — India's largest exchange by volume</p><p>🏛️ <span class="tooltip-term" data-term="bse">BSE</span> (Bombay Stock Exchange) — Asia's oldest exchange</p><p><span class="tooltip-term" data-term="sebi">SEBI</span> regulates these exchanges to protect investors.</p><p>To trade, you need a <span class="tooltip-term" data-term="demat">Demat account</span> (holds shares electronically) and a Trading account (lets you buy/sell).</p>`,
+      interact: { type:'choice', question:'What do you need to start trading in India?', options:['Just a bank account','A Demat + Trading account','A company registration','Permission from the Prime Minister'], correct:1, explain:'You need a Demat account (to hold shares electronically) and a Trading account (to execute buy/sell orders). These are opened through brokers registered with SEBI.' },
+      quiz: [
+        { q:'What is the role of SEBI?', opts:['To set stock prices','To regulate and protect investors','To buy stocks for the government','To print currency'], ans:1, explain:'SEBI (Securities and Exchange Board of India) is the regulator that ensures fair practices, protects investors, and oversees stock exchanges.' },
+        { q:'Which is Asia\'s oldest stock exchange?', opts:['NSE','Tokyo Stock Exchange','BSE','Shanghai Stock Exchange'], ans:2, explain:'BSE (Bombay Stock Exchange), established in 1875, is Asia\'s oldest stock exchange.' }
+      ]
+    }},
+    { id:'w1l4', title:'Why Stock Prices Move', content: {
+      discover: `<h3>Supply and Demand</h3><div class="lesson-analogy">Imagine 100 people want to buy a rare toy, but only 10 are available. The price goes up because demand exceeds supply. Now imagine no one wants the toy — the seller must lower the price.</div><p>Stock prices work the same way:</p><p>📈 <b>Price goes up</b> when more people want to buy (demand > supply)</p><p>📉 <b>Price goes down</b> when more people want to sell (supply > demand)</p><p>What affects demand and supply? Company performance, earnings reports, industry trends, economic conditions, investor sentiment, and news events.</p><p>Important: Stock prices in the short term are unpredictable. They reflect millions of decisions by different people with different information and expectations.</p>`,
+      interact: { type:'choice', question:'A company announces record profits. What is most likely to happen to demand for its shares?', options:['Decrease — people sell','Increase — people want to buy','No change','The stock exchange closes'], correct:1, explain:'Good news like record profits typically increases investor interest, raising demand for shares. But remember — "most likely" doesn\'t mean "always." Markets can be unpredictable.' },
+      quiz: [
+        { q:'If more people want to sell a stock than buy it, the price will likely:', opts:['Go up','Stay the same','Go down','Double'], ans:2, explain:'When sellers outnumber buyers, prices tend to fall — there\'s more supply than demand.' }
+      ]
+    }},
+  ]},
+  { id:2, name:'Market Explorer', icon:'🧭', lessons: [
+    { id:'w2l1', title:'Market Orders & Limit Orders', content: {
+      discover: `<h3>Two Ways to Trade</h3><p><b>Market Order:</b> "Buy/sell NOW at whatever the current price is." Fast but you might not get the exact price you see.</p><div class="lesson-analogy">Like telling a shopkeeper "I'll take it!" without negotiating. Quick, but you accept whatever price they offer.</div><p><b>Limit Order:</b> "Buy/sell only at this specific price or better." You set the price, but the trade might not happen if the market doesn't reach your price.</p><div class="lesson-analogy">Like telling the shopkeeper "I'll buy it, but only if you sell it for ₹500 or less." You might get a deal — or you might walk away empty-handed.</div>`,
+      interact: { type:'choice', question:'You want to buy a stock currently at ₹200 but only if it drops to ₹180. Which order type?', options:['Market Order','Limit Order','Both','Neither'], correct:1, explain:'A Limit Order lets you set ₹180 as your maximum buying price. The order will only execute if the stock reaches ₹180 or lower.' },
+      quiz: [
+        { q:'Which order type guarantees execution but not price?', opts:['Limit Order','Market Order','Stop Order','None'], ans:1, explain:'Market orders execute immediately at the best available price — guaranteed execution but the exact price may vary slightly.' }
+      ]
+    }},
+    { id:'w2l2', title:'Market Capitalisation', content: {
+      discover: `<h3>How Big is a Company?</h3><p><span class="tooltip-term" data-term="market cap">Market capitalisation</span> (market cap) is the total market value of a company's outstanding shares.</p><p><b>Market Cap = Share Price × Total Shares Outstanding</b></p><div class="lesson-analogy">If a company has 1 crore shares and each share costs ₹100, the market cap is ₹100 crore. This tells you the market's current valuation of the entire company.</div><p>Companies are often categorised as:</p><p>🔵 <b>Large Cap</b> — ₹20,000+ crore (well-established, more stable)</p><p>🟡 <b>Mid Cap</b> — ₹5,000–20,000 crore (growing companies)</p><p>🔴 <b>Small Cap</b> — Below ₹5,000 crore (smaller, potentially higher risk and growth)</p>`,
+      interact: { type:'choice', question:'A company has 5 crore shares at ₹400 each. Market cap?', options:['₹400 crore','₹2,000 crore','₹20,000 crore','₹5 crore'], correct:1, explain:'Market Cap = 5,00,00,000 × ₹400 = ₹2,000 crore.' },
+      quiz: [
+        { q:'Which category would a ₹50,000 crore company fall into?', opts:['Small Cap','Mid Cap','Large Cap','Micro Cap'], ans:2, explain:'₹50,000 crore is well above the ₹20,000 crore threshold, making it a Large Cap company.' }
+      ]
+    }},
+    { id:'w2l3', title:'Reading Price Changes', content: {
+      discover: `<h3>Understanding Daily Changes</h3><p>When you see a stock listed as:</p><p style="font-size:18px;font-weight:700;margin:8px 0;">Alpha Motors ₹850 <span style="color:var(--green);">+₹12 (+1.43%)</span></p><p>This means:</p><p>• Current price: ₹850</p><p>• Change from yesterday's closing: +₹12</p><p>• Percentage change: +1.43%</p><p>The percentage is more useful for comparison. A ₹10 move in a ₹100 stock (10%) is much more significant than a ₹10 move in a ₹5,000 stock (0.2%).</p><p><span class="tooltip-term" data-term="volume">Volume</span> tells you how many shares were traded — high volume during price changes suggests stronger conviction.</p>`,
+      interact: { type:'choice', question:'Stock A rises ₹5 from ₹50. Stock B rises ₹5 from ₹500. Which had a larger percentage move?', options:['Stock A (10%)','Stock B (1%)','They are the same','Cannot determine'], correct:0, explain:'Stock A: ₹5/₹50 = 10%. Stock B: ₹5/₹500 = 1%. Stock A had a much larger percentage move, even though both moved ₹5.' },
+      quiz: [
+        { q:'A stock closed at ₹200 yesterday and is now ₹210. What is the daily change?', opts:['+₹10 (+5%)','+₹10 (+10%)','+₹210 (+5%)','-₹10 (-5%)'], ans:0, explain:'Change = ₹210 - ₹200 = +₹10. Percentage = (10/200) × 100 = +5%.' }
+      ]
+    }},
+  ]},
+  { id:3, name:'Trader', icon:'📊', lessons: [
+    { id:'w3l1', title:'Candlestick Basics', content: {
+      discover: `<h3>Reading Candlesticks</h3><p>A <span class="tooltip-term" data-term="candlestick">candlestick</span> shows four prices for a time period:</p><p>• <b>Open</b> — price at the start</p><p>• <b>High</b> — highest price reached</p><p>• <b>Low</b> — lowest price reached</p><p>• <b>Close</b> — price at the end</p><div class="lesson-analogy">Think of it like a daily weather report for a stock: the morning temperature (open), the peak heat (high), the lowest temperature (low), and the evening temperature (close).</div><p>🟢 <b>Green candle</b>: Close > Open (price went up)</p><p>🔴 <b>Red candle</b>: Close < Open (price went down)</p><p>The thick part is the "body" (open to close). The thin lines are "wicks" (high and low).</p>`,
+      interact: { type:'choice', question:'A candle has Open=₹100, Close=₹110, High=₹115, Low=₹98. What color is it?', options:['Red (bearish)','Green (bullish)','Yellow','Cannot determine'], correct:1, explain:'Close (₹110) > Open (₹100), so it\'s a green/bullish candle — the price went up during this period.' },
+      quiz: [
+        { q:'What do the thin lines (wicks) of a candlestick represent?', opts:['Open and Close','High and Low reached','Volume','Market cap'], ans:1, explain:'Wicks show the highest and lowest prices reached during the period, even though the price didn\'t close at those levels.' }
+      ]
+    }},
+    { id:'w3l2', title:'Trends, Support & Resistance', content: {
+      discover: `<h3>Patterns in Price Movement</h3><p><b>Trend</b>: The general direction of price movement.</p><p>📈 <b>Uptrend</b>: Higher highs and higher lows</p><p>📉 <b>Downtrend</b>: Lower highs and lower lows</p><p>➡️ <b>Sideways</b>: Price moves in a range</p><p><span class="tooltip-term" data-term="support">Support</span>: A price level where buying has historically been strong enough to prevent further decline.</p><p><span class="tooltip-term" data-term="resistance">Resistance</span>: A price level where selling pressure has historically prevented further rise.</p><p><b>Important caveat:</b> Past patterns do NOT guarantee future behavior. Support and resistance can break at any time. Technical analysis describes past behavior — it doesn't predict the future with certainty.</p>`,
+      interact: { type:'choice', question:'A stock has been bouncing between ₹450 and ₹500 for weeks. ₹450 is likely:', options:['Resistance','Support','Moving average','Market cap'], correct:1, explain:'₹450 is where buying interest has repeatedly prevented further decline — this is called a support level. However, support can break.' },
+      quiz: [
+        { q:'Can technical analysis guarantee future stock prices?', opts:['Yes, always','Yes, if you use enough indicators','No — past patterns may not repeat','Only for large-cap stocks'], ans:2, explain:'Technical analysis identifies historical patterns but cannot guarantee future results. Markets are influenced by countless unpredictable factors.' }
+      ]
+    }},
+  ]},
+  { id:4, name:'Investor', icon:'🏦', lessons: [
+    { id:'w4l1', title:'Fundamental Analysis Basics', content: {
+      discover: `<h3>Looking Under the Hood</h3><p>Fundamental analysis means evaluating a company's actual business — its revenue, profit, debt, and growth — to estimate what it might be worth.</p><p>Key metrics:</p><p>• <b><span class="tooltip-term" data-term="eps">EPS</span></b> = Net Profit ÷ Total Shares</p><p>• <b><span class="tooltip-term" data-term="pe">P/E Ratio</span></b> = Share Price ÷ EPS</p><p>• <b><span class="tooltip-term" data-term="roe">ROE</span></b> = Net Profit ÷ Shareholders' Equity</p><div class="lesson-analogy">If buying a stock is like buying a business, fundamental analysis is like checking the shop's accounts before you buy it. How much does it earn? How much does it owe? Is it growing?</div><p>No single metric tells the whole story. Always look at multiple factors together.</p>`,
+      interact: { type:'choice', question:'A company earns ₹50 crore profit with 10 crore shares. What is the EPS?', options:['₹500','₹50','₹5','₹0.5'], correct:2, explain:'EPS = ₹50 crore ÷ 10 crore shares = ₹5 per share.' },
+      quiz: [
+        { q:'Stock price is ₹100 and EPS is ₹5. What is the P/E ratio?', opts:['5','10','20','50'], ans:2, explain:'P/E = Price ÷ EPS = ₹100 ÷ ₹5 = 20. This means investors are paying ₹20 for every ₹1 of earnings.' },
+        { q:'A high P/E always means the stock is overvalued. True or false?', opts:['True','False'], ans:1, explain:'False. A high P/E might mean investors expect high future growth. It could also mean overvaluation. Context matters — compare with industry peers and growth rates.' }
+      ]
+    }},
+  ]},
+  { id:5, name:'Portfolio Builder', icon:'🧩', lessons: [
+    { id:'w5l1', title:'Diversification', content: {
+      discover: `<h3>Don't Put All Your Eggs in One Basket</h3><div class="lesson-analogy"><span class="tooltip-term" data-term="diversification">Diversification</span> is like packing different types of food for a long trip. If you only bring rice and it gets wet, you have nothing. But if you also brought bread, fruit, and nuts, you're still fine.</div><p>Spreading your investments across different stocks, sectors, and asset types reduces the risk that one bad event destroys your entire portfolio.</p><p><b>Key principles:</b></p><p>• Invest across multiple sectors (technology, banking, healthcare, etc.)</p><p>• Don't put too much into any single stock</p><p>• Consider different company sizes (large, mid, small cap)</p><p>• Diversification reduces risk but doesn't eliminate it</p><p>• Over-diversification can dilute returns too</p>`,
+      interact: { type:'choice', question:'Which portfolio is more diversified?<br>A) 100% in one tech company<br>B) 20% each in 5 different sectors', options:['Portfolio A','Portfolio B','Both are the same','Cannot determine'], correct:1, explain:'Portfolio B is more diversified — it spreads risk across 5 different sectors. If tech crashes, Portfolio A loses everything, but Portfolio B only loses ~20%.' },
+      quiz: [
+        { q:'Diversification guarantees you won\'t lose money. True or false?', opts:['True','False'], ans:1, explain:'False. Diversification reduces risk but does not eliminate it. In severe market downturns, most assets can decline together.' }
+      ]
+    }},
+  ]},
+  { id:6, name:'Advanced Player', icon:'⚡', lessons: [
+    { id:'w6l1', title:'Behavioral Finance', content: {
+      discover: `<h3>Your Brain vs. The Market</h3><p>Behavioral finance studies how emotions and psychological biases affect financial decisions.</p><p>Common biases:</p><p>🔴 <b><span class="tooltip-term" data-term="fomo">FOMO</span></b> — Buying because everyone else is, fear of missing out</p><p>🔴 <b>Loss Aversion</b> — Feeling losses ~2x more than equivalent gains</p><p>🔴 <b>Confirmation Bias</b> — Only seeking information that supports your existing belief</p><p>🔴 <b>Anchoring</b> — Fixating on a specific price (e.g., "I bought at ₹500 so it must be worth ₹500")</p><p>🔴 <b>Herd Behavior</b> — Following the crowd without independent analysis</p><p>🔴 <b>Overconfidence</b> — Believing you know more than you do after a few wins</p><p>Awareness of these biases is the first step to making more rational decisions.</p>`,
+      interact: { type:'choice', question:'A stock you own drops 10%. Social media is panicking. You haven\'t checked the fundamentals. What bias would cause you to sell immediately?', options:['Confirmation Bias','Herd Behavior / Panic Selling','Anchoring','FOMO'], correct:1, explain:'Selling because everyone else is panicking, without checking the actual fundamentals, is herd behavior combined with panic selling.' },
+      quiz: [
+        { q:'You made profit on 3 trades in a row and now feel you can\'t lose. This is:', opts:['Good skill','Overconfidence bias','Confirmation bias','Diversification'], ans:1, explain:'A few successful trades can create overconfidence. Markets are uncertain — past success does not guarantee future results.' }
+      ]
+    }},
+  ]},
+  { id:7, name:'Market Master', icon:'👑', lessons: [
+    { id:'w7l1', title:'Putting It All Together', content: {
+      discover: `<h3>The Complete Investor</h3><p>There is no single "correct" approach to the market. Good investors typically:</p><p>✅ Understand what they own and why</p><p>✅ Manage risk through diversification and position sizing</p><p>✅ Make decisions based on analysis, not emotions</p><p>✅ Keep learning and adapting</p><p>✅ Maintain a journal of decisions and review them</p><p>✅ Understand that losses are part of investing</p><p>✅ Have realistic expectations</p><p>✅ Know the difference between investing and speculation</p><div class="lesson-analogy">Being a good investor is more like being a good gardener than being a good gambler. You plant carefully, diversify your crops, protect against bad weather, and are patient for the harvest.</div>`,
+      interact: { type:'choice', question:'Which habit is most likely to help a long-term investor?', options:['Checking prices every minute','Following social media tips','Maintaining an investment journal','Using maximum leverage'], correct:2, explain:'Keeping a journal helps you review your reasoning, learn from mistakes, and improve decision quality over time.' },
+      quiz: [
+        { q:'The stock market guarantees wealth if you invest long enough. True or false?', opts:['True','False'], ans:1, explain:'False. While markets have historically trended upward over very long periods in many countries, individual stocks can go to zero, timing matters, and past performance doesn\'t guarantee future results. Risk always exists.' }
+      ]
+    }},
+  ]},
+];
+
+// ================================================================
+// SECTION: MARKET EVENTS
+// ================================================================
+const MARKET_EVENTS = [
+  { text:'Alpha Motors announces record EV deliveries — beating analyst estimates by 15%.', effects:{ALMO:0.06}, type:'positive' },
+  { text:'BharatTech wins a ₹2,000 crore government cloud computing contract.', effects:{BTEK:0.05}, type:'positive' },
+  { text:'GreenGrid Energy receives approval for 3 new solar farms.', effects:{GGEN:0.04}, type:'positive' },
+  { text:'NovaBank reports higher-than-expected bad loans this quarter.', effects:{NOVB:-0.05}, type:'negative' },
+  { text:'MedCore\'s new drug fails Phase 3 clinical trials.', effects:{MEDC:-0.07}, type:'negative' },
+  { text:'SkyRetail\'s online sales grow 40% year-over-year.', effects:{SKRT:0.05}, type:'positive' },
+  { text:'Global semiconductor shortage affects Quantum Systems production.', effects:{QSYS:-0.04,BTEK:-0.02}, type:'negative' },
+  { text:'FreshFoods expands into 3 new states with strong early demand.', effects:{FFDS:0.03}, type:'positive' },
+  { text:'Infrastructure spending bill announced — ₹5 lakh crore package.', effects:{INFB:0.06,GGEN:0.02}, type:'positive' },
+  { text:'Rising fuel costs squeeze Ocean Logistics margins.', effects:{OCLG:-0.04}, type:'negative' },
+  { text:'RBI keeps interest rates unchanged. Markets react positively.', effects:{NOVB:0.02,INFB:0.02,ALMO:0.01}, type:'positive' },
+  { text:'Global technology stocks see broad sell-off on valuation concerns.', effects:{BTEK:-0.04,QSYS:-0.06,SKRT:-0.02}, type:'negative' },
+  { text:'Inflation data comes in higher than expected.', effects:{NOVB:-0.02,FFDS:-0.01,INFB:-0.03}, type:'negative' },
+  { text:'FII inflows increase as global investors turn bullish on India.', effects:{ALMO:0.02,BTEK:0.03,NOVB:0.02,GGEN:0.01,MEDC:0.02}, type:'positive' },
+  { text:'Market sentiment turns cautious ahead of quarterly results season.', effects:{ALMO:-0.01,BTEK:-0.01,SKRT:-0.02,QSYS:-0.02}, type:'negative' },
+];
+
+// ================================================================
+// SECTION: ACHIEVEMENTS
+// ================================================================
+const ACHIEVEMENT_DEFS = [
+  { id:'first_lesson', name:'First Steps', icon:'📖', desc:'Complete your first lesson', check: s => s.lessonsCompleted.length >= 1 },
+  { id:'first_trade', name:'First Trade', icon:'🤝', desc:'Execute your first trade', check: s => s.totalTrades >= 1 },
+  { id:'first_profit', name:'First Profit', icon:'💰', desc:'Close a profitable trade', check: s => s.profitableTrades >= 1 },
+  { id:'first_loss', name:'First Loss', icon:'📉', desc:'Experience your first loss (it\'s normal!)', check: s => s.lossTrades >= 1 },
+  { id:'five_lessons', name:'Eager Learner', icon:'🎓', desc:'Complete 5 lessons', check: s => s.lessonsCompleted.length >= 5 },
+  { id:'diversified', name:'Diversification Master', icon:'🧩', desc:'Hold stocks in 3+ different sectors', check: s => { const secs = new Set(); Object.keys(s.holdings).forEach(id => { const c = COMPANIES.find(c=>c.id===id); if(c && s.holdings[id].qty > 0) secs.add(c.sector); }); return secs.size >= 3; }},
+  { id:'quiz_ace', name:'Quiz Ace', icon:'⭐', desc:'Answer 10 quiz questions correctly', check: s => s.quizCorrect >= 10 },
+  { id:'ten_trades', name:'Active Trader', icon:'📊', desc:'Complete 10 trades', check: s => s.totalTrades >= 10 },
+  { id:'streak3', name:'On Fire', icon:'🔥', desc:'Maintain a 3-day streak', check: s => s.streak >= 3 },
+  { id:'world2', name:'Explorer', icon:'🧭', desc:'Unlock World 2', check: s => s.unlockedWorlds >= 2 },
+  { id:'crash_survivor', name:'Crash Survivor', icon:'🛡️', desc:'Survive a major market event', check: s => s.crashesSurvived >= 1 },
+  { id:'journal_writer', name:'Thoughtful Trader', icon:'📝', desc:'Write 3 journal entries', check: s => s.journalEntries.length >= 3 },
+];
+
+// ================================================================
+// SECTION: PRACTICE QUESTIONS POOL
+// ================================================================
+const PRACTICE_POOL = [
+  { q:'What does IPO stand for?', opts:['Initial Public Offering','Internal Price Order','Indian Portfolio Option','Instant Profit Opportunity'], ans:0, diff:1, topic:'basics' },
+  { q:'If you buy 50 shares at ₹120 each, your total investment is:', opts:['₹120','₹600','₹6,000','₹60,000'], ans:2, diff:1, topic:'basics' },
+  { q:'The P/E ratio helps investors understand:', opts:['A company\'s age','How the price relates to earnings','The company\'s debt','Employee count'], ans:1, diff:2, topic:'fundamentals' },
+  { q:'A green candlestick means:', opts:['The stock is eco-friendly','Close > Open (price went up)','Volume increased','The company is profitable'], ans:1, diff:2, topic:'technical' },
+  { q:'Diversification means:', opts:['Buying only one stock','Investing everything in gold','Spreading investments across different assets','Trading frequently'], ans:2, diff:1, topic:'portfolio' },
+  { q:'FOMO in investing refers to:', opts:['Following Only Market Opportunities','Fear Of Missing Out','Financial Options and Market Orders','Fundamental Overview of Market Operations'], ans:1, diff:2, topic:'psychology' },
+  { q:'Which is NOT a stock exchange in India?', opts:['NSE','BSE','NYSE','MCX'], ans:2, diff:1, topic:'basics' },
+  { q:'Market Cap = ?', opts:['Revenue × Profit','Share Price × Total Shares','P/E × EPS','Volume × Price'], ans:1, diff:2, topic:'basics' },
+  { q:'EPS stands for:', opts:['Equity Per Stock','Earnings Per Share','Exchange Price Standard','Electronic Payment System'], ans:1, diff:1, topic:'fundamentals' },
+  { q:'A limit order:', opts:['Executes immediately at any price','Only executes at your specified price or better','Limits your losses','Is only for large investors'], ans:1, diff:2, topic:'trading' },
+  { q:'ROE measures:', opts:['Return on Earnings','Return on Equity','Rate of Exchange','Revenue over Expenses'], ans:1, diff:2, topic:'fundamentals' },
+  { q:'A stop-loss order always protects you from losses. True or false?', opts:['True','False'], ans:1, diff:3, topic:'risk' },
+  { q:'Revenue of ₹1000 crore, expenses of ₹850 crore. Profit margin?', opts:['15%','85%','10%','150%'], ans:0, diff:2, topic:'fundamentals' },
+  { q:'Loss aversion means:', opts:['You avoid all losses successfully','Losses feel more painful than equivalent gains feel good','You should never sell at a loss','Losing is impossible in the market'], ans:1, diff:3, topic:'psychology' },
+  { q:'Which sector does a bank belong to?', opts:['Technology','Healthcare','Banking / Financial Services','FMCG'], ans:2, diff:1, topic:'basics' },
+  { q:'A bear market is characterized by:', opts:['Rising prices','Falling prices','Stable prices','Random prices'], ans:1, diff:1, topic:'basics' },
+  { q:'What is SEBI\'s primary role?', opts:['Setting stock prices','Protecting investors and regulating markets','Lending money to companies','Managing government funds'], ans:1, diff:1, topic:'basics' },
+  { q:'Company has ₹200 crore profit, ₹1000 crore equity. ROE?', opts:['5%','10%','20%','200%'], ans:2, diff:3, topic:'fundamentals' },
+];
+
+// ================================================================
+// SECTION: GAME STATE
+// ================================================================
+const DEFAULT_STATE = {
+  initialized: false,
+  level: 1,
+  xp: 0,
+  cash: 100000,
+  holdings: {},
+  lessonsCompleted: [],
+  currentLesson: null,
+  currentLessonStep: 0,
+  achievements: [],
+  quizCorrect: 0,
+  quizTotal: 0,
+  totalTrades: 0,
+  profitableTrades: 0,
+  lossTrades: 0,
+  streak: 0,
+  lastPlayDate: null,
+  simDay: 1,
+  priceHistory: {},
+  currentPrices: {},
+  journalEntries: [],
+  missionProgress: 0,
+  missionTarget: 1,
+  missionType: 'lesson',
+  practiceCorrect: 0,
+  practiceWrong: 0,
+  practiceStreak: 0,
+  unlockedWorlds: 1,
+  crashesSurvived: 0,
+  startingExperience: 0,
+};
+
+let GS; // Game State
+
+// ================================================================
+// SECTION: STORAGE MANAGER
+// ================================================================
+const StorageManager = {
+  save() {
+    if (!GS) return;
+    try { localStorage.setItem('marketquest_save', JSON.stringify(GS)); } catch(e) { console.warn('Save failed:', e); }
+  },
+  load() {
+    try {
+      const d = localStorage.getItem('marketquest_save');
+      if (d) {
+        const parsed = JSON.parse(d);
+        GS = Object.assign(JSON.parse(JSON.stringify(DEFAULT_STATE)), parsed);
+        return true;
+      }
+    } catch(e) { console.warn('Load failed:', e); }
+    return false;
+  },
+  reset() {
+    localStorage.removeItem('marketquest_save');
+    GS = JSON.parse(JSON.stringify(DEFAULT_STATE));
+    MarketEngine.initPrices();
+  }
+};
+
+// ================================================================
+// SECTION: MARKET ENGINE
+// ================================================================
+const MarketEngine = {
+  initPrices() {
+    GS.currentPrices = {};
+    GS.priceHistory = {};
+    COMPANIES.forEach(c => {
+      GS.currentPrices[c.id] = c.basePrice;
+      // Generate 60 days of history
+      const hist = [];
+      let p = c.basePrice * (0.85 + Math.random() * 0.15);
+      for (let i = 0; i < 60; i++) {
+        const change = (Math.random() - 0.48) * c.volatility * p;
+        p = Math.max(p * 0.5, p + change);
+        hist.push(Math.round(p * 100) / 100);
+      }
+      hist.push(c.basePrice); // current = base
+      GS.priceHistory[c.id] = hist;
+      GS.currentPrices[c.id] = c.basePrice;
+    });
+  },
+
+  advanceDay() {
+    let event = null;
+    // 40% chance of an event
+    if (Math.random() < 0.4) {
+      event = MARKET_EVENTS[Math.floor(Math.random() * MARKET_EVENTS.length)];
+    }
+
+    COMPANIES.forEach(c => {
+      let baseChange = (Math.random() - 0.48) * c.volatility;
+      // Apply event effect
+      if (event && event.effects[c.id]) {
+        baseChange += event.effects[c.id];
+      }
+      // Market-wide sentiment
+      const sentiment = (Math.random() - 0.5) * 0.005;
+      baseChange += sentiment;
+
+      const oldPrice = GS.currentPrices[c.id];
+      const newPrice = Math.max(1, Math.round((oldPrice * (1 + baseChange)) * 100) / 100);
+      GS.currentPrices[c.id] = newPrice;
+      GS.priceHistory[c.id].push(newPrice);
+    });
+    GS.simDay++;
+    return event;
+  },
+
+  getChange(id) {
+    const hist = GS.priceHistory[id];
+    if (hist.length < 2) return { abs: 0, pct: 0 };
+    const curr = hist[hist.length - 1];
+    const prev = hist[hist.length - 2];
+    return { abs: Math.round((curr - prev) * 100) / 100, pct: Math.round(((curr - prev) / prev) * 10000) / 100 };
+  }
+};
+
+// ================================================================
+// SECTION: PORTFOLIO ENGINE
+// ================================================================
+const PortfolioEngine = {
+  buy(stockId, qty, journalNote) {
+    const price = GS.currentPrices[stockId];
+    const cost = price * qty;
+    if (cost > GS.cash || qty <= 0) return false;
+    GS.cash = Math.round((GS.cash - cost) * 100) / 100;
+    if (!GS.holdings[stockId]) GS.holdings[stockId] = { qty: 0, avgPrice: 0, invested: 0 };
+    const h = GS.holdings[stockId];
+    h.invested += cost;
+    h.qty += qty;
+    h.avgPrice = Math.round((h.invested / h.qty) * 100) / 100;
+    GS.totalTrades++;
+    if (journalNote) {
+      GS.journalEntries.push({ date: `Day ${GS.simDay}`, stock: stockId, action: 'BUY', qty, price, note: journalNote });
+    }
+    AchievementEngine.check();
+    StorageManager.save();
+    return true;
+  },
+
+  sell(stockId, qty, journalNote) {
+    if (!GS.holdings[stockId] || GS.holdings[stockId].qty < qty || qty <= 0) return false;
+    const price = GS.currentPrices[stockId];
+    const revenue = price * qty;
+    const h = GS.holdings[stockId];
+    const costBasis = h.avgPrice * qty;
+    const pnl = revenue - costBasis;
+    GS.cash = Math.round((GS.cash + revenue) * 100) / 100;
+    h.qty -= qty;
+    h.invested = Math.round(h.avgPrice * h.qty * 100) / 100;
+    if (h.qty === 0) { h.avgPrice = 0; h.invested = 0; }
+    GS.totalTrades++;
+    if (pnl > 0) GS.profitableTrades++;
+    if (pnl < 0) GS.lossTrades++;
+    if (journalNote) {
+      GS.journalEntries.push({ date: `Day ${GS.simDay}`, stock: stockId, action: 'SELL', qty, price, pnl: Math.round(pnl*100)/100, note: journalNote });
+    }
+    AchievementEngine.check();
+    StorageManager.save();
+    return true;
+  },
+
+  totalValue() {
+    let inv = 0;
+    Object.keys(GS.holdings).forEach(id => {
+      if (GS.holdings[id].qty > 0) inv += GS.holdings[id].qty * GS.currentPrices[id];
+    });
+    return Math.round((GS.cash + inv) * 100) / 100;
+  },
+
+  totalInvested() {
+    let t = 0;
+    Object.keys(GS.holdings).forEach(id => { t += GS.holdings[id].invested || 0; });
+    return Math.round(t * 100) / 100;
+  },
+
+  totalPnL() {
+    let pnl = 0;
+    Object.keys(GS.holdings).forEach(id => {
+      const h = GS.holdings[id];
+      if (h.qty > 0) pnl += (GS.currentPrices[id] - h.avgPrice) * h.qty;
+    });
+    return Math.round(pnl * 100) / 100;
+  }
+};
+
+// ================================================================
+// SECTION: XP & LEVEL ENGINE
+// ================================================================
+const LEVEL_NAMES = ['','Market Rookie','Market Explorer','Trader','Investor','Portfolio Builder','Advanced Player','Market Master'];
+const XP_PER_LEVEL = [0, 100, 250, 500, 800, 1200, 1800, 2500];
+
+function addXP(amount) {
+  GS.xp += amount;
+  // Check level up
+  for (let i = XP_PER_LEVEL.length - 1; i >= 1; i--) {
+    if (GS.xp >= XP_PER_LEVEL[i] && GS.level < i) {
+      GS.level = i;
+      if (i > GS.unlockedWorlds) GS.unlockedWorlds = i;
+      showModal(`<h2>🎉 Level Up!</h2><p style="font-size:16px;margin-bottom:8px;">You reached <b>Level ${i} — ${LEVEL_NAMES[i]}</b>!</p><p>New learning world unlocked. Keep going!</p><button class="btn btn-primary btn-block" onclick="closeModal()" style="margin-top:16px;">Continue</button>`);
+      break;
+    }
+  }
+  StorageManager.save();
+  updateNav();
+}
+
+function xpForNextLevel() {
+  const next = Math.min(GS.level + 1, XP_PER_LEVEL.length - 1);
+  return XP_PER_LEVEL[next];
+}
+
+// ================================================================
+// SECTION: ACHIEVEMENT ENGINE
+// ================================================================
+const AchievementEngine = {
+  check() {
+    ACHIEVEMENT_DEFS.forEach(a => {
+      if (!GS.achievements.includes(a.id) && a.check(GS)) {
+        GS.achievements.push(a.id);
+        showModal(`<div style="text-align:center;"><div style="font-size:48px;margin-bottom:8px;">${a.icon}</div><h2>Achievement Unlocked!</h2><p style="font-size:16px;font-weight:600;margin:8px 0;">${a.name}</p><p style="color:var(--text-secondary);">${a.desc}</p><button class="btn btn-primary" onclick="closeModal()" style="margin-top:16px;">Nice!</button></div>`);
+        addXP(25);
+      }
+    });
+  }
+};
+
+// ================================================================
+// SECTION: MISSION ENGINE
+// ================================================================
+const MissionEngine = {
+  generate() {
+    const types = [
+      { type:'lesson', text:'Complete 1 lesson', target:1 },
+      { type:'quiz', text:'Answer 5 quiz questions correctly', target:5 },
+      { type:'trade', text:'Make 2 trades', target:2 },
+      { type:'analyze', text:'View 3 different companies', target:3 },
+    ];
+    const m = types[Math.floor(Math.random() * types.length)];
+    GS.missionType = m.type;
+    GS.missionTarget = m.target;
+    GS.missionProgress = 0;
+  },
+  progress(type) {
+    if (type === GS.missionType) {
+      GS.missionProgress = Math.min(GS.missionProgress + 1, GS.missionTarget);
+      if (GS.missionProgress >= GS.missionTarget) {
+        addXP(30);
+        this.generate();
+      }
+    }
+  }
+};
+
+// ================================================================
+// SECTION: CHAT TUTOR (Market Mentor)
+// ================================================================
+const ChatTutor = {
+  // Knowledge base for keyword matching
+  knowledge: {
+    'stock': 'A stock (or share) represents a unit of ownership in a company. When you buy a stock, you become a part-owner of that company. The value of your ownership changes as the stock price moves.',
+    'share': 'A share is one unit of ownership in a company. If a company has 1,000 shares and you own 10, you own 1% of the company.',
+    'p/e': 'P/E (Price-to-Earnings) ratio = Share Price ÷ Earnings Per Share. It tells you how much investors are paying for each rupee of earnings. A high P/E might mean high growth expectations, while a low P/E might suggest undervaluation or concerns. Always compare within the same industry.',
+    'pe ratio': 'P/E ratio = Price ÷ EPS. For example, if a stock costs ₹200 and EPS is ₹10, P/E = 20. This means you\'re paying ₹20 for every ₹1 of earnings. Compare with industry peers for context.',
+    'eps': 'EPS (Earnings Per Share) = Net Profit ÷ Total Shares. It shows the profit attributable to each share. Higher EPS generally indicates better profitability, but compare with similar companies.',
+    'diversification': 'Diversification means spreading your investments across different stocks, sectors, and asset types to reduce risk. The idea is that different investments react differently to market events, so losses in one area may be offset by gains in another.',
+    'risk': 'In investing, risk is the possibility of losing some or all of your investment. Higher potential returns usually come with higher risk. Risk management involves position sizing, diversification, and understanding what you\'re investing in.',
+    'nse': 'NSE (National Stock Exchange) is India\'s largest stock exchange by trading volume, based in Mumbai. It\'s home to the NIFTY 50 index.',
+    'bse': 'BSE (Bombay Stock Exchange) is Asia\'s oldest stock exchange, established in 1875 in Mumbai. It\'s home to the SENSEX index.',
+    'sebi': 'SEBI (Securities and Exchange Board of India) is the regulator that oversees stock exchanges, protects investors, and ensures fair market practices in India.',
+    'nifty': 'NIFTY 50 is an index of the 50 largest companies listed on NSE. It serves as a benchmark for the Indian stock market\'s performance.',
+    'sensex': 'SENSEX is an index of the 30 largest companies on BSE. It\'s one of the oldest indices tracking the Indian market.',
+    'demat': 'A Demat (dematerialized) account holds your shares in electronic form, similar to how a bank account holds money. You need one to trade stocks in India.',
+    'options': 'Options are contracts that give you the right (not obligation) to buy or sell a stock at a specific price before a specific date. They\'re complex instruments — calls benefit from price increases, puts from decreases. Warning: options involve leverage and can lead to rapid losses. Not suitable for beginners.',
+    'mutual fund': 'A mutual fund pools money from many investors and invests it in stocks, bonds, or other assets. Managed by professional fund managers. Good for diversification and for people who don\'t want to pick individual stocks.',
+    'etf': 'An ETF (Exchange-Traded Fund) is like a mutual fund but trades on the stock exchange like a regular stock. Often tracks an index like NIFTY 50.',
+    'bull': 'A bull market is a period when stock prices are generally rising and investor confidence is high. It doesn\'t mean every stock goes up.',
+    'bear': 'A bear market is a period when stock prices are generally falling, typically defined as a 20%+ decline from recent highs.',
+    'dividend': 'A dividend is a payment made by a company to its shareholders, usually from profits. Not all companies pay dividends — some reinvest all profits into growth.',
+    'market cap': 'Market Capitalisation = Share Price × Total Shares Outstanding. It represents the market\'s current valuation of a company.',
+    'candlestick': 'A candlestick chart element shows four prices: Open, High, Low, Close. Green = price went up; Red = price went down. The body shows open-to-close range, wicks show high and low.',
+    'support': 'Support is a price level where buying interest has historically been strong enough to prevent further decline. But it can break — it\'s a pattern, not a guarantee.',
+    'resistance': 'Resistance is a price level where selling pressure has historically prevented further rise. Like support, it can break at any time.',
+    'moving average': 'A moving average smooths price data over a set period (e.g., 50-day, 200-day) to help identify trends. It\'s a lagging indicator — it shows what already happened.',
+    'roe': 'ROE (Return on Equity) = Net Profit ÷ Shareholders\' Equity × 100. Shows how efficiently a company uses shareholder money to generate profit.',
+    'volume': 'Volume is the number of shares traded in a period. High volume during a price move suggests stronger conviction. Low volume suggests less interest.',
+    'fomo': 'FOMO (Fear of Missing Out) is the anxiety that others are profiting while you\'re not. It can lead to impulsive buying at high prices without proper analysis.',
+    'loss aversion': 'Loss aversion is a psychological bias where losses feel approximately twice as painful as equivalent gains feel good. This can cause people to hold losing stocks too long or sell winners too early.',
+    'investing vs trading': 'Investing typically involves buying assets for the long term based on fundamentals, while trading involves shorter-term buying and selling based on price movements. Both have merits and risks. Investing focuses on business value; trading focuses on price action.',
+    'compounding': 'Compounding is when your returns generate their own returns over time. ₹1,00,000 growing at 12% becomes ₹1,12,000 after year 1, then ₹1,25,440 after year 2 — you earn returns on your returns.',
+    'inflation': 'Inflation is the rate at which prices of goods increase over time, reducing purchasing power. If inflation is 6%, your money buys 6% less next year. Investments should ideally beat inflation.',
+    'should i buy': 'I can\'t give you specific buy/sell advice — that would be personal financial advice. Instead, consider: What are the company\'s fundamentals? Is it fairly valued? How does it fit your overall portfolio? What\'s your time horizon? What risk can you afford? Research these factors to make your own informed decision.',
+    'which stock': 'I won\'t recommend specific stocks — that\'s personal financial advice. Instead, learn to evaluate companies yourself: check revenue growth, profitability, debt levels, competitive advantages, and valuation. Build a diversified portfolio and invest only what you can afford to lose.',
+    'guarantee': 'Nothing in the stock market is guaranteed. Anyone promising guaranteed returns is misleading you. Even the best investors make mistakes. Focus on process (good analysis, risk management) rather than outcomes.',
+    'hello': 'Hello! I\'m Market Mentor, your stock market learning companion. Ask me about any financial concept — stocks, P/E ratios, diversification, or anything else you\'re curious about!',
+    'hi': 'Hi there! I\'m here to help you learn about the stock market. What would you like to know?',
+    'help': 'I can help you understand: stocks, shares, P/E ratio, EPS, market cap, diversification, risk, NSE/BSE, SEBI, candlesticks, support/resistance, moving averages, behavioral biases, and much more. Just ask!',
+    'thank': 'You\'re welcome! Keep learning and asking questions — that\'s how you become a better investor. Is there anything else you\'d like to understand?',
+  },
+
+  /**
+   * sendToAIModel(userMessage)
+   * 
+   * INTEGRATION POINT: Replace the keyword-matching logic below
+   * with an actual API call to an LLM service.
+   * 
+   * Example with Anthropic API:
+   *   const response = await fetch('/api/chat', {
+   *     method: 'POST',
+   *     headers: { 'Content-Type': 'application/json' },
+   *     body: JSON.stringify({ message: userMessage, context: 'stock market education' })
+   *   });
+   *   const data = await response.json();
+   *   return data.reply;
+   * 
+   * IMPORTANT: Never put API keys directly in client-side HTML.
+   * Use a backend proxy to handle authentication.
+   */
+  sendToAIModel(userMessage) {
+    const msg = userMessage.toLowerCase().trim();
+    
+    // Check for matching keywords
+    let bestMatch = null;
+    let bestScore = 0;
+    
+    for (const [key, response] of Object.entries(this.knowledge)) {
+      const keywords = key.split(/\s+/);
+      let score = 0;
+      keywords.forEach(kw => {
+        if (msg.includes(kw)) score += kw.length;
+      });
+      if (score > bestScore) {
+        bestScore = score;
+        bestMatch = response;
+      }
+    }
+
+    if (bestMatch && bestScore >= 2) return bestMatch;
+
+    // Fallback responses
+    if (msg.includes('?')) return 'That\'s a great question! I\'m a simplified educational chatbot, so I may not have the answer to everything. Try asking about specific concepts like "What is P/E ratio?" or "Explain diversification." For a comprehensive answer, consider consulting reliable financial education resources.';
+    if (msg.includes('lost') || msg.includes('lose') || msg.includes('losing')) return 'Losing money is a natural part of learning to invest. The key is to understand WHY: Did you take too much risk? Did the fundamentals change? Did you panic sell? Review your investment journal and learn from each experience. Remember — even expert investors have losses.';
+    if (msg.includes('scared') || msg.includes('worry') || msg.includes('afraid')) return 'It\'s completely normal to feel anxious about investing. Start small, focus on learning, and never invest money you can\'t afford to lose. Education reduces fear — the more you understand, the more confident you\'ll feel. Take it one concept at a time.';
+    
+    return 'I\'m not sure I understand that question. Try asking about specific stock market concepts like:\n• "What is a stock?"\n• "Explain P/E ratio"\n• "What is diversification?"\n• "How do candlesticks work?"\n• "What is FOMO?"\n\nI\'m here to help you learn!';
+  }
+};
+
+// ================================================================
+// SECTION: CHART RENDERER
+// ================================================================
+const ChartRenderer = {
+  drawLineChart(canvasId, data, options = {}) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width = rect.width * (window.devicePixelRatio || 1);
+    canvas.height = rect.height * (window.devicePixelRatio || 1);
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
+    ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+    const W = rect.width, H = rect.height;
+    const pad = { top: 20, right: 16, bottom: 30, left: 60 };
+
+    ctx.clearRect(0, 0, W, H);
+
+    if (!data || data.length < 2) { ctx.fillStyle = '#5c6478'; ctx.fillText('No data', W/2-20, H/2); return; }
+
+    const min = Math.min(...data) * 0.98;
+    const max = Math.max(...data) * 1.02;
+    const range = max - min || 1;
+    const xStep = (W - pad.left - pad.right) / (data.length - 1);
+
+    const toX = i => pad.left + i * xStep;
+    const toY = v => pad.top + (1 - (v - min) / range) * (H - pad.top - pad.bottom);
+
+    // Grid lines
+    ctx.strokeStyle = '#1e293b';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+      const y = pad.top + (i / 4) * (H - pad.top - pad.bottom);
+      ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
+      const val = max - (i / 4) * range;
+      ctx.fillStyle = '#5c6478'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+      ctx.fillText('₹' + Math.round(val), pad.left - 8, y + 4);
+    }
+
+    // Line
+    const isUp = data[data.length-1] >= data[0];
+    const lineColor = isUp ? '#10b981' : '#ef4444';
+    ctx.beginPath();
+    ctx.strokeStyle = lineColor;
+    ctx.lineWidth = 2;
+    data.forEach((v, i) => { i === 0 ? ctx.moveTo(toX(i), toY(v)) : ctx.lineTo(toX(i), toY(v)); });
+    ctx.stroke();
+
+    // Gradient fill
+    ctx.beginPath();
+    data.forEach((v, i) => { i === 0 ? ctx.moveTo(toX(i), toY(v)) : ctx.lineTo(toX(i), toY(v)); });
+    ctx.lineTo(toX(data.length-1), H - pad.bottom);
+    ctx.lineTo(toX(0), H - pad.bottom);
+    ctx.closePath();
+    const grad = ctx.createLinearGradient(0, pad.top, 0, H - pad.bottom);
+    grad.addColorStop(0, isUp ? 'rgba(16,185,129,.2)' : 'rgba(239,68,68,.2)');
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Current price dot
+    const lastX = toX(data.length-1), lastY = toY(data[data.length-1]);
+    ctx.beginPath(); ctx.arc(lastX, lastY, 4, 0, Math.PI*2);
+    ctx.fillStyle = lineColor; ctx.fill();
+  },
+
+  drawAllocationChart(canvasId, holdings) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width = rect.width * (window.devicePixelRatio || 1);
+    canvas.height = rect.height * (window.devicePixelRatio || 1);
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
+    ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+    const W = rect.width, H = rect.height;
+    ctx.clearRect(0, 0, W, H);
+
+    const total = PortfolioEngine.totalValue();
+    const items = [];
+    Object.keys(holdings).forEach(id => {
+      if (holdings[id].qty > 0) {
+        const val = holdings[id].qty * GS.currentPrices[id];
+        const c = COMPANIES.find(c=>c.id===id);
+        items.push({ name: c ? c.id : id, value: val, pct: (val/total)*100 });
+      }
+    });
+    const cashPct = (GS.cash / total) * 100;
+    items.push({ name: 'Cash', value: GS.cash, pct: cashPct });
+
+    if (items.length === 0) return;
+
+    const colors = ['#3b82f6','#10b981','#f59e0b','#ef4444','#a855f7','#6366f1','#ec4899','#14b8a6','#f97316','#84cc16','#64748b'];
+    const barH = 28, gap = 4, startY = 10;
+    const maxW = W - 120;
+
+    items.sort((a,b) => b.pct - a.pct);
+    items.forEach((item, i) => {
+      const y = startY + i * (barH + gap);
+      if (y + barH > H) return;
+      const bw = Math.max(2, (item.pct / 100) * maxW);
+      ctx.fillStyle = colors[i % colors.length];
+      ctx.beginPath();
+      ctx.roundRect(80, y, bw, barH, 4);
+      ctx.fill();
+      ctx.fillStyle = '#e8ecf4'; ctx.font = '12px sans-serif'; ctx.textAlign = 'right';
+      ctx.fillText(item.name, 72, y + 18);
+      ctx.fillStyle = '#8891a5'; ctx.textAlign = 'left'; ctx.font = '11px sans-serif';
+      ctx.fillText(item.pct.toFixed(1) + '%', 80 + bw + 8, y + 18);
+    });
+  }
+};
+
+// ================================================================
+// SECTION: UI MANAGER
+// ================================================================
+let currentScreen = 'onboarding';
+let currentStockId = null;
+let tradeMode = 'buy';
+let chartTimeframe = '1M';
+
+function navigate(screen) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById('screen-' + screen);
+  if (el) el.classList.add('active');
+  currentScreen = screen;
+
+  // Update bottom nav
+  document.querySelectorAll('.bottomnav button').forEach(b => b.classList.remove('active'));
+  const navBtn = document.getElementById('bnav-' + screen);
+  if (navBtn) navBtn.classList.add('active');
+
+  // Render screen
+  if (screen === 'home') renderHome();
+  else if (screen === 'learn') renderLearnWorlds();
+  else if (screen === 'simulator') renderSimulator();
+  else if (screen === 'portfolio') renderPortfolio();
+  else if (screen === 'achievements') renderAchievements();
+  else if (screen === 'practice') { /* already set up */ }
+
+  updateNav();
+  StorageManager.save();
+}
+
+function updateNav() {
+  document.getElementById('nav-level').textContent = GS.level;
+  document.getElementById('nav-xp').textContent = GS.xp;
+  document.getElementById('nav-cash').textContent = formatINR(GS.cash);
+}
+
+function formatINR(n) {
+  if (n === undefined || n === null || isNaN(n)) return '₹0';
+  const abs = Math.abs(Math.round(n));
+  let s = abs.toString();
+  // Indian number formatting
+  if (s.length > 3) {
+    const last3 = s.slice(-3);
+    const rest = s.slice(0, -3);
+    const formatted = rest.replace(/\B(?=(\d{2})+(?!\d))/g, ',') + ',' + last3;
+    s = formatted;
+  }
+  return (n < 0 ? '-₹' : '₹') + s;
+}
+
+function showModal(html) {
+  document.getElementById('modal-content').innerHTML = html;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('show');
+}
+
+// ================================================================
+// SECTION: HOME SCREEN RENDERER
+// ================================================================
+function renderHome() {
+  const total = PortfolioEngine.totalValue();
+  const pnl = total - 100000;
+  const pnlPct = ((pnl / 100000) * 100).toFixed(1);
+  document.getElementById('home-portfolio-val').textContent = formatINR(total);
+  const pnlEl = document.getElementById('home-pnl');
+  pnlEl.textContent = `${pnl >= 0 ? '+' : ''}${formatINR(pnl)} (${pnlPct}%)`;
+  pnlEl.className = 'badge ' + (pnl >= 0 ? 'badge-green' : 'badge-red');
+
+  document.getElementById('home-cash').textContent = formatINR(GS.cash);
+  document.getElementById('home-level').textContent = GS.level;
+  document.getElementById('home-level-name').textContent = LEVEL_NAMES[GS.level] || 'Market Rookie';
+
+  const nextXP = xpForNextLevel();
+  const currLevelXP = XP_PER_LEVEL[GS.level] || 0;
+  const progress = nextXP > currLevelXP ? ((GS.xp - currLevelXP) / (nextXP - currLevelXP)) * 100 : 100;
+  document.getElementById('home-xp-text').textContent = `${GS.xp} / ${nextXP} XP`;
+  document.getElementById('home-xp-bar').style.width = Math.min(100, progress) + '%';
+
+  document.getElementById('home-streak').textContent = GS.streak + ' 🔥';
+
+  // Mission
+  const missionTexts = {
+    lesson: `Complete ${GS.missionTarget} lesson${GS.missionTarget>1?'s':''}`,
+    quiz: `Answer ${GS.missionTarget} quiz questions correctly`,
+    trade: `Make ${GS.missionTarget} trades`,
+    analyze: `View ${GS.missionTarget} different companies`,
+  };
+  document.getElementById('home-mission-text').textContent = missionTexts[GS.missionType] || 'Complete a lesson';
+  const mPct = GS.missionTarget > 0 ? (GS.missionProgress / GS.missionTarget) * 100 : 0;
+  document.getElementById('home-mission-bar').style.width = Math.min(100, mPct) + '%';
+  document.getElementById('home-mission-status').textContent = mPct >= 100 ? 'Complete!' : 'Active';
+
+  // Recent achievements
+  const achEl = document.getElementById('home-achievements');
+  if (GS.achievements.length > 0) {
+    const recent = GS.achievements.slice(-3).reverse();
+    achEl.innerHTML = recent.map(id => {
+      const a = ACHIEVEMENT_DEFS.find(a => a.id === id);
+      return a ? `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="font-size:20px;">${a.icon}</span><span style="font-size:13px;">${a.name}</span></div>` : '';
+    }).join('');
+  }
+
+  // Update streak
+  const today = new Date().toDateString();
+  if (GS.lastPlayDate !== today) {
+    const yesterday = new Date(Date.now() - 86400000).toDateString();
+    if (GS.lastPlayDate === yesterday) GS.streak++;
+    else if (GS.lastPlayDate) GS.streak = 1;
+    else GS.streak = 1;
+    GS.lastPlayDate = today;
+    StorageManager.save();
+  }
+}
+
+// ================================================================
+// SECTION: LEARN WORLDS RENDERER
+// ================================================================
+function renderLearnWorlds() {
+  const container = document.getElementById('world-list');
+  container.innerHTML = WORLDS.map(w => {
+    const locked = w.id > GS.unlockedWorlds;
+    const completedLessons = w.lessons.filter(l => GS.lessonsCompleted.includes(l.id)).length;
+    const totalLessons = w.lessons.length;
+    const pct = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+    return `<div class="world-item ${locked ? 'locked' : ''}" onclick="${locked ? '' : `openWorld(${w.id})`}">
+      <div class="world-icon">${locked ? '🔒' : w.icon}</div>
+      <div class="world-info">
+        <h4>Level ${w.id} — ${w.name}</h4>
+        <p>${completedLessons}/${totalLessons} lessons${locked ? ' • Locked' : ''}</p>
+        ${!locked ? `<div class="progress-bar" style="width:120px;margin-top:4px;"><div class="progress-fill green" style="width:${pct}%;"></div></div>` : ''}
+      </div>
+      <div class="world-progress">${locked ? '' : pct + '%'}</div>
+    </div>`;
+  }).join('');
+}
+
+function openWorld(worldId) {
+  const world = WORLDS.find(w => w.id === worldId);
+  if (!world) return;
+  showModal(`<h2>${world.icon} ${world.name}</h2>
+    <p style="margin-bottom:16px;">Select a lesson:</p>
+    ${world.lessons.map(l => {
+      const done = GS.lessonsCompleted.includes(l.id);
+      return `<button class="btn ${done ? 'btn-secondary' : 'btn-primary'} btn-block" style="margin-bottom:8px;" onclick="closeModal();startLesson('${l.id}')">
+        ${done ? '✅' : '📖'} ${l.title}
+      </button>`;
+    }).join('')}
+    <button class="btn btn-secondary btn-block" onclick="closeModal()" style="margin-top:8px;">Close</button>`);
+}
+
+// ================================================================
+// SECTION: LESSON ENGINE
+// ================================================================
+let lessonState = { id: null, step: 0, quizIdx: 0 };
+
+function startLesson(lessonId) {
+  let lesson = null, world = null;
+  WORLDS.forEach(w => w.lessons.forEach(l => { if (l.id === lessonId) { lesson = l; world = w; } }));
+  if (!lesson) return;
+
+  lessonState = { id: lessonId, step: 0, quizIdx: 0, lesson, world };
+  navigate('lesson');
+  renderLessonStep();
+}
+
+function renderLessonStep() {
+  const { lesson, world, step, quizIdx } = lessonState;
+  document.getElementById('lesson-title').textContent = lesson.title;
+  document.getElementById('lesson-world').textContent = `Level ${world.id} — ${world.name}`;
+
+  // Step indicators
+  const totalSteps = 3; // discover, interact, quiz
+  const stepsEl = document.getElementById('lesson-steps');
+  stepsEl.innerHTML = ['Discover', 'Interact', 'Quiz'].map((name, i) => 
+    `<div class="step-dot ${i < step ? 'done' : i === step ? 'active' : ''}"></div><span style="font-size:11px;color:${i===step?'var(--accent)':'var(--text-muted)'};margin-right:8px;">${name}</span>`
+  ).join('');
+
+  const body = document.getElementById('lesson-body');
+  const content = lesson.content;
+
+  if (step === 0) {
+    // DISCOVER
+    body.innerHTML = `<div class="lesson-content">${content.discover}</div>
+      <button class="btn btn-primary btn-block" onclick="lessonState.step=1;renderLessonStep();" style="margin-top:20px;">Continue →</button>`;
+    attachTooltips();
+  } else if (step === 1) {
+    // INTERACT
+    const q = content.interact;
+    body.innerHTML = `<p style="font-size:15px;margin-bottom:16px;">${q.question}</p>
+      ${q.options.map((opt, i) => `<button class="quiz-option" onclick="checkInteract(${i})" id="interact-opt-${i}">${opt}</button>`).join('')}
+      <div id="interact-feedback" style="display:none;margin-top:12px;"></div>`;
+  } else if (step === 2) {
+    // QUIZ
+    if (quizIdx >= content.quiz.length) {
+      // Done!
+      completeLesson();
+      return;
+    }
+    const q = content.quiz[quizIdx];
+    body.innerHTML = `<p style="font-size:14px;color:var(--text-secondary);margin-bottom:4px;">Question ${quizIdx+1} of ${content.quiz.length}</p>
+      <p style="font-size:15px;margin-bottom:16px;">${q.q}</p>
+      ${q.opts.map((opt, i) => `<button class="quiz-option" onclick="checkQuiz(${i})" id="quiz-opt-${i}">${opt}</button>`).join('')}
+      <div id="quiz-feedback" style="display:none;margin-top:12px;"></div>`;
+  }
+}
+
+function checkInteract(idx) {
+  const q = lessonState.lesson.content.interact;
+  const correct = idx === q.correct;
+  document.querySelectorAll('[id^="interact-opt-"]').forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    if (i === idx && !correct) btn.classList.add('wrong');
+  });
+  const fb = document.getElementById('interact-feedback');
+  fb.style.display = 'block';
+  fb.innerHTML = `<div class="card" style="background:${correct?'var(--green-dim)':'var(--red-dim)'};">
+    <p style="font-weight:600;color:${correct?'var(--green)':'var(--red)'};">${correct ? '✅ Correct!' : '❌ Not quite.'}</p>
+    <p style="font-size:14px;color:var(--text-secondary);margin-top:6px;">${q.explain}</p>
+    <button class="btn btn-primary btn-sm" onclick="lessonState.step=2;renderLessonStep();" style="margin-top:10px;">Continue →</button>
+  </div>`;
+  if (correct) { addXP(5); GS.quizCorrect++; }
+  GS.quizTotal++;
+  MissionEngine.progress('quiz');
+  StorageManager.save();
+}
+
+function checkQuiz(idx) {
+  const q = lessonState.lesson.content.quiz[lessonState.quizIdx];
+  const correct = idx === q.ans;
+  document.querySelectorAll('[id^="quiz-opt-"]').forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.ans) btn.classList.add('correct');
+    if (i === idx && !correct) btn.classList.add('wrong');
+  });
+  const fb = document.getElementById('quiz-feedback');
+  fb.style.display = 'block';
+  fb.innerHTML = `<div class="card" style="background:${correct?'var(--green-dim)':'var(--red-dim)'};">
+    <p style="font-weight:600;color:${correct?'var(--green)':'var(--red)'};">${correct ? '✅ Correct!' : '❌ Incorrect.'}</p>
+    <p style="font-size:14px;color:var(--text-secondary);margin-top:6px;">${q.explain}</p>
+    <button class="btn btn-primary btn-sm" onclick="lessonState.quizIdx++;renderLessonStep();" style="margin-top:10px;">Next →</button>
+  </div>`;
+  if (correct) { addXP(10); GS.quizCorrect++; }
+  GS.quizTotal++;
+  MissionEngine.progress('quiz');
+  StorageManager.save();
+}
+
+function completeLesson() {
+  if (!GS.lessonsCompleted.includes(lessonState.id)) {
+    GS.lessonsCompleted.push(lessonState.id);
+    addXP(30);
+    MissionEngine.progress('lesson');
+    AchievementEngine.check();
+  }
+  const body = document.getElementById('lesson-body');
+  body.innerHTML = `<div style="text-align:center;padding:20px;">
+    <div style="font-size:48px;margin-bottom:12px;">🎉</div>
+    <h3 style="margin-bottom:8px;">Lesson Complete!</h3>
+    <p style="color:var(--text-secondary);margin-bottom:6px;">${lessonState.lesson.title}</p>
+    <p style="color:var(--yellow);font-weight:600;margin-bottom:16px;">+30 XP earned</p>
+    <button class="btn btn-primary btn-block" onclick="navigate('learn')">Back to Lessons</button>
+  </div>`;
+  StorageManager.save();
+}
+
+// ================================================================
+// SECTION: SIMULATOR RENDERER
+// ================================================================
+function renderSimulator() {
+  document.getElementById('sim-day-badge').textContent = `Day ${GS.simDay}`;
+  const list = document.getElementById('stock-list');
+  list.innerHTML = COMPANIES.map(c => {
+    const price = GS.currentPrices[c.id];
+    const change = MarketEngine.getChange(c.id);
+    const isUp = change.abs >= 0;
+    return `<div class="stock-item" onclick="openStock('${c.id}')">
+      <div>
+        <div class="stock-name">${c.name}</div>
+        <div class="stock-ticker">${c.id} • ${c.sector}</div>
+      </div>
+      <div>
+        <div class="stock-price">${formatINR(price)}</div>
+        <div class="stock-change ${isUp?'up':'down'}">${isUp?'+':''}${change.abs.toFixed(2)} (${isUp?'+':''}${change.pct.toFixed(2)}%)</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function advanceDay() {
+  const event = MarketEngine.advanceDay();
+  if (event) {
+    // Check if player has holdings affected by crash events
+    if (event.type === 'negative') {
+      let affected = false;
+      Object.keys(event.effects).forEach(id => {
+        if (GS.holdings[id] && GS.holdings[id].qty > 0) affected = true;
+      });
+      if (affected) GS.crashesSurvived++;
+    }
+    document.getElementById('market-news').style.display = 'block';
+    document.getElementById('news-text').innerHTML = `<span style="color:${event.type==='positive'?'var(--green)':'var(--red)'};">${event.type==='positive'?'📈':'📉'}</span> ${event.text}`;
+  } else {
+    document.getElementById('market-news').style.display = 'none';
+  }
+  renderSimulator();
+  AchievementEngine.check();
+  StorageManager.save();
+}
+
+// ================================================================
+// SECTION: STOCK DETAIL & TRADING
+// ================================================================
+function openStock(stockId) {
+  currentStockId = stockId;
+  MissionEngine.progress('analyze');
+  navigate('stock-detail');
+  renderStockDetail();
+}
+
+function renderStockDetail() {
+  const c = COMPANIES.find(c => c.id === currentStockId);
+  if (!c) return;
+  const price = GS.currentPrices[c.id];
+  const change = MarketEngine.getChange(c.id);
+  const isUp = change.abs >= 0;
+
+  document.getElementById('detail-name').textContent = c.name;
+  document.getElementById('detail-ticker').textContent = c.id;
+  document.getElementById('detail-sector').textContent = c.sector;
+  document.getElementById('detail-price').textContent = formatINR(price);
+  document.getElementById('detail-change').innerHTML = `<span style="color:${isUp?'var(--green)':'var(--red)'};">${isUp?'+':''}${change.abs.toFixed(2)} (${isUp?'+':''}${change.pct.toFixed(2)}%)</span>`;
+
+  // Stats
+  const profit = c.revenue - c.expenses;
+  const eps = (profit / c.sharesOut).toFixed(2);
+  const pe = (price / (profit / c.sharesOut)).toFixed(1);
+  const mktCap = ((price * c.sharesOut)).toFixed(0);
+  document.getElementById('detail-stats').innerHTML = `
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>Market Cap</span><span style="color:var(--text-primary);">₹${mktCap} Cr</span></div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>Revenue</span><span style="color:var(--text-primary);">₹${c.revenue} Cr</span></div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>Profit</span><span style="color:var(--text-primary);">₹${profit} Cr</span></div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>EPS</span><span style="color:var(--text-primary);">₹${eps}</span></div>
+    <div style="display:flex;justify-content:space-between;"><span>P/E</span><span style="color:var(--text-primary);">${pe}x</span></div>`;
+
+  document.getElementById('detail-risk').innerHTML = `
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>Risk Level</span><span class="badge ${c.risk==='Low'?'badge-green':c.risk==='High'||c.risk==='Very High'?'badge-red':'badge-yellow'}">${c.risk}</span></div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>Volatility</span><span style="color:var(--text-primary);">${(c.volatility*100).toFixed(1)}%</span></div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>Debt</span><span style="color:var(--text-primary);">₹${c.debt} Cr</span></div>
+    <div style="display:flex;justify-content:space-between;"><span>Cash</span><span style="color:var(--text-primary);">₹${c.cash} Cr</span></div>`;
+
+  // Chart
+  renderPriceChart();
+  // Trade panel
+  setTradeMode('buy');
+  document.getElementById('trade-qty').value = 1;
+  updateTradePreview();
+}
+
+function renderPriceChart() {
+  const hist = GS.priceHistory[currentStockId] || [];
+  let data;
+  if (chartTimeframe === '1W') data = hist.slice(-7);
+  else if (chartTimeframe === '1M') data = hist.slice(-30);
+  else if (chartTimeframe === '3M') data = hist.slice(-90);
+  else data = hist;
+  ChartRenderer.drawLineChart('price-chart', data);
+}
+
+function setChartTimeframe(tf, btn) {
+  chartTimeframe = tf;
+  document.querySelectorAll('#chart-timeframe-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderPriceChart();
+}
+
+function setTradeMode(mode) {
+  tradeMode = mode;
+  const buyTab = document.getElementById('trade-buy-tab');
+  const sellTab = document.getElementById('trade-sell-tab');
+  const btn = document.getElementById('trade-execute-btn');
+  buyTab.className = 'trade-tab' + (mode==='buy'?' active-buy':'');
+  sellTab.className = 'trade-tab' + (mode==='sell'?' active-sell':'');
+  btn.textContent = mode === 'buy' ? 'Buy' : 'Sell';
+  btn.className = 'btn btn-block ' + (mode==='buy'?'btn-success':'btn-danger');
+  updateTradePreview();
+}
+
+function updateTradePreview() {
+  const qty = parseInt(document.getElementById('trade-qty').value) || 0;
+  const price = GS.currentPrices[currentStockId] || 0;
+  document.getElementById('trade-total').textContent = formatINR(qty * price);
+  document.getElementById('trade-cash').textContent = formatINR(GS.cash);
+}
+
+function executeTrade() {
+  const qty = parseInt(document.getElementById('trade-qty').value);
+  const journal = document.getElementById('trade-journal').value.trim();
+  if (!qty || qty <= 0) { alert('Enter a valid quantity.'); return; }
+
+  let success;
+  if (tradeMode === 'buy') {
+    const cost = qty * GS.currentPrices[currentStockId];
+    if (cost > GS.cash) { alert('Insufficient cash.'); return; }
+    success = PortfolioEngine.buy(currentStockId, qty, journal);
+  } else {
+    const holding = GS.holdings[currentStockId];
+    if (!holding || holding.qty < qty) { alert('You don\'t hold enough shares.'); return; }
+    success = PortfolioEngine.sell(currentStockId, qty, journal);
+  }
+
+  if (success) {
+    MissionEngine.progress('trade');
+    document.getElementById('trade-journal').value = '';
+    updateTradePreview();
+    updateNav();
+    showModal(`<div style="text-align:center;">
+      <div style="font-size:36px;margin-bottom:8px;">${tradeMode==='buy'?'✅':'💰'}</div>
+      <h2>Trade Executed!</h2>
+      <p style="color:var(--text-secondary);margin-bottom:16px;">${tradeMode==='buy'?'Bought':'Sold'} ${qty} shares of ${currentStockId} at ${formatINR(GS.currentPrices[currentStockId])}</p>
+      <button class="btn btn-primary" onclick="closeModal()">OK</button>
+    </div>`);
+  }
+}
+
+// ================================================================
+// SECTION: PORTFOLIO RENDERER
+// ================================================================
+function renderPortfolio() {
+  const total = PortfolioEngine.totalValue();
+  const invested = PortfolioEngine.totalInvested();
+  const pnl = PortfolioEngine.totalPnL();
+
+  document.getElementById('port-total-val').textContent = formatINR(total);
+  document.getElementById('port-cash').textContent = formatINR(GS.cash);
+  document.getElementById('port-invested').textContent = formatINR(invested);
+  const pnlEl = document.getElementById('port-pnl');
+  pnlEl.textContent = `${pnl>=0?'+':''}${formatINR(pnl)}`;
+  pnlEl.style.color = pnl >= 0 ? 'var(--green)' : 'var(--red)';
+
+  // Holdings
+  const holdingsEl = document.getElementById('holdings-list');
+  const activeHoldings = Object.keys(GS.holdings).filter(id => GS.holdings[id].qty > 0);
+  if (activeHoldings.length === 0) {
+    holdingsEl.innerHTML = '<p style="font-size:13px;color:var(--text-muted);padding:12px 0;">No holdings yet. Start trading!</p>';
+  } else {
+    holdingsEl.innerHTML = activeHoldings.map(id => {
+      const h = GS.holdings[id];
+      const curPrice = GS.currentPrices[id];
+      const thisPnl = (curPrice - h.avgPrice) * h.qty;
+      const c = COMPANIES.find(c=>c.id===id);
+      return `<div class="holding-row">
+        <span style="font-weight:600;">${c?c.name:id}<br><span style="font-size:11px;color:var(--text-muted);">${id}</span></span>
+        <span>${h.qty}</span>
+        <span>${formatINR(h.avgPrice)}</span>
+        <span style="color:${thisPnl>=0?'var(--green)':'var(--red)'};">${thisPnl>=0?'+':''}${formatINR(thisPnl)}</span>
+      </div>`;
+    }).join('');
+  }
+
+  // Allocation chart
+  setTimeout(() => ChartRenderer.drawAllocationChart('alloc-chart', GS.holdings), 100);
+
+  // Journal
+  const journalEl = document.getElementById('journal-list');
+  if (GS.journalEntries.length === 0) {
+    journalEl.innerHTML = '<p style="font-size:13px;color:var(--text-muted);">Your trade notes will appear here.</p>';
+  } else {
+    journalEl.innerHTML = GS.journalEntries.slice(-10).reverse().map(j => 
+      `<div style="border-bottom:1px solid var(--border);padding:10px 0;font-size:13px;">
+        <div style="display:flex;justify-content:space-between;"><span style="font-weight:600;color:${j.action==='BUY'?'var(--green)':'var(--red)'};">${escapeHTML(j.action)} ${escapeHTML(String(j.qty))}× ${escapeHTML(j.stock)}</span><span style="color:var(--text-muted);">${escapeHTML(j.date)}</span></div>
+        <div style="color:var(--text-secondary);margin-top:4px;">${escapeHTML(j.note || '')}</div>
+        ${j.pnl !== undefined ? `<div style="margin-top:2px;color:${j.pnl>=0?'var(--green)':'var(--red)'};">P&L: ${formatINR(j.pnl)}</div>` : ''}
+      </div>`
+    ).join('');
+  }
+}
+
+// ================================================================
+// SECTION: ACHIEVEMENTS RENDERER
+// ================================================================
+function renderAchievements() {
+  document.getElementById('achievements-list').innerHTML = ACHIEVEMENT_DEFS.map(a => {
+    const unlocked = GS.achievements.includes(a.id);
+    return `<div class="achievement ${unlocked?'':'locked'}">
+      <div class="achievement-icon">${a.icon}</div>
+      <div class="achievement-info"><h4>${a.name}</h4><p>${a.desc}</p></div>
+      ${unlocked ? '<span class="badge badge-green">Unlocked</span>' : '<span class="badge badge-yellow" style="opacity:.5;">Locked</span>'}
+    </div>`;
+  }).join('');
+}
+
+// ================================================================
+// SECTION: CHAT INTERFACE
+// ================================================================
+function sendChat() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+
+  const container = document.getElementById('chat-messages');
+  container.innerHTML += `<div class="chat-msg user">${escapeHTML(msg)}</div>`;
+
+  const reply = ChatTutor.sendToAIModel(msg);
+  container.innerHTML += `<div class="chat-msg bot">${escapeHTML(reply).replace(/\n/g,'<br>')}</div>`;
+  container.scrollTop = container.scrollHeight;
+}
+
+function escapeHTML(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ================================================================
+// SECTION: PRACTICE ARENA
+// ================================================================
+let practiceState = { current: null };
+
+function generatePracticeQ() {
+  // Filter by completed lessons (adapt difficulty)
+  const maxDiff = GS.practiceStreak >= 5 ? 3 : GS.practiceStreak >= 2 ? 2 : 1;
+  const eligible = PRACTICE_POOL.filter(q => q.diff <= maxDiff);
+  const q = eligible[Math.floor(Math.random() * eligible.length)];
+  practiceState.current = q;
+
+  document.getElementById('practice-next-btn').style.display = 'none';
+  document.getElementById('practice-question').innerHTML = `
+    <p style="font-size:15px;margin-bottom:16px;">${q.q}</p>
+    ${q.opts.map((opt, i) => `<button class="quiz-option" onclick="checkPractice(${i})" id="pq-opt-${i}">${opt}</button>`).join('')}
+    <div id="practice-feedback" style="display:none;margin-top:12px;"></div>`;
+
+  document.getElementById('practice-correct').textContent = 'Correct: ' + GS.practiceCorrect;
+  document.getElementById('practice-wrong').textContent = 'Wrong: ' + GS.practiceWrong;
+  document.getElementById('practice-streak-badge').textContent = 'Streak: ' + GS.practiceStreak;
+}
+
+function checkPractice(idx) {
+  const q = practiceState.current;
+  const correct = idx === q.ans;
+  document.querySelectorAll('[id^="pq-opt-"]').forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.ans) btn.classList.add('correct');
+    if (i === idx && !correct) btn.classList.add('wrong');
+  });
+
+  if (correct) { GS.practiceCorrect++; GS.practiceStreak++; addXP(5); }
+  else { GS.practiceWrong++; GS.practiceStreak = 0; }
+
+  document.getElementById('practice-correct').textContent = 'Correct: ' + GS.practiceCorrect;
+  document.getElementById('practice-wrong').textContent = 'Wrong: ' + GS.practiceWrong;
+  document.getElementById('practice-streak-badge').textContent = 'Streak: ' + GS.practiceStreak;
+
+  const fb = document.getElementById('practice-feedback');
+  fb.style.display = 'block';
+  fb.innerHTML = `<p style="font-weight:600;color:${correct?'var(--green)':'var(--red)'};">${correct?'✅ Correct!':'❌ Wrong.'}</p><p style="font-size:13px;color:var(--text-secondary);margin-top:4px;">The answer is: ${q.opts[q.ans]}</p>`;
+
+  document.getElementById('practice-next-btn').style.display = 'block';
+  document.getElementById('practice-next-btn').textContent = 'Next Question →';
+  MissionEngine.progress('quiz');
+  StorageManager.save();
+}
+
+// ================================================================
+// SECTION: TOOLTIPS
+// ================================================================
+function attachTooltips() {
+  document.querySelectorAll('.tooltip-term').forEach(el => {
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      const term = el.dataset.term;
+      const def = GLOSSARY[term];
+      if (!def) return;
+      const popup = document.getElementById('tooltip-popup');
+      document.getElementById('tooltip-title').textContent = def.title;
+      document.getElementById('tooltip-body').textContent = def.body;
+      const rect = el.getBoundingClientRect();
+      popup.style.left = Math.min(rect.left, window.innerWidth - 320) + 'px';
+      popup.style.top = (rect.bottom + 8) + 'px';
+      popup.classList.add('show');
+    });
+  });
+}
+document.addEventListener('click', () => document.getElementById('tooltip-popup').classList.remove('show'));
+
+// ================================================================
+// SECTION: RESET & SETTINGS
+// ================================================================
+function confirmReset() {
+  showModal(`<h2>Reset All Progress?</h2>
+    <p>This will permanently delete all your progress, portfolio, achievements, and journal entries. This cannot be undone.</p>
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <button class="btn btn-secondary" onclick="closeModal()" style="flex:1;">Cancel</button>
+      <button class="btn btn-danger" onclick="doReset()" style="flex:1;">Reset Everything</button>
+    </div>`);
+}
+function doReset() {
+  closeModal();
+  StorageManager.reset();
+  MissionEngine.generate();
+  GS.initialized = false;
+  StorageManager.save();
+  document.getElementById('topnav').style.display = 'none';
+  document.getElementById('bottomnav').style.display = 'none';
+  navigate('onboarding');
+}
+
+// ================================================================
+// SECTION: GAME INIT & ONBOARDING
+// ================================================================
+function startGame(experience) {
+  GS = JSON.parse(JSON.stringify(DEFAULT_STATE));
+  GS.initialized = true;
+  GS.startingExperience = experience;
+  // Adjust starting level based on experience
+  if (experience >= 2) { GS.level = 2; GS.xp = 100; GS.unlockedWorlds = 2; }
+  if (experience >= 3) { GS.level = 3; GS.xp = 250; GS.unlockedWorlds = 3; }
+  MarketEngine.initPrices();
+  MissionEngine.generate();
+  GS.lastPlayDate = new Date().toDateString();
+  GS.streak = 1;
+  StorageManager.save();
+
+  document.getElementById('topnav').style.display = 'flex';
+  document.getElementById('bottomnav').style.display = 'flex';
+  navigate('home');
+
+  // Show welcome
+  setTimeout(() => {
+    showModal(`<div style="text-align:center;">
+      <div style="font-size:48px;margin-bottom:8px;">🚀</div>
+      <h2>Your Mission Begins!</h2>
+      <p style="color:var(--text-secondary);margin:12px 0;">You start with <b style="color:var(--green);">₹1,00,000</b> virtual cash.</p>
+      <p style="color:var(--text-secondary);margin-bottom:16px;">Learn concepts, trade wisely, and progress through all 7 worlds. This is a learning simulation — take your time and enjoy the journey!</p>
+      <button class="btn btn-primary btn-lg" onclick="closeModal();navigate('learn');">Start Learning 📚</button>
+    </div>`);
+  }, 300);
+}
+
+function initApp() {
+  const loaded = StorageManager.load();
+  if (loaded && GS && GS.initialized) {
+    // Returning player
+    document.getElementById('topnav').style.display = 'flex';
+    document.getElementById('bottomnav').style.display = 'flex';
+    // Ensure price history exists
+    if (!GS.priceHistory || Object.keys(GS.priceHistory).length === 0) MarketEngine.initPrices();
+    // Ensure mission exists
+    if (!GS.missionType) MissionEngine.generate();
+    navigate('home');
+  } else {
+    // New player
+    GS = JSON.parse(JSON.stringify(DEFAULT_STATE));
+    navigate('onboarding');
+  }
+}
+
+// Canvas resize handler
+window.addEventListener('resize', () => {
+  if (currentScreen === 'stock-detail' && currentStockId) renderPriceChart();
+  if (currentScreen === 'portfolio') setTimeout(() => ChartRenderer.drawAllocationChart('alloc-chart', GS.holdings), 50);
+});
+
+window.addEventListener('pagehide', () => StorageManager.save());
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') StorageManager.save();
+});
+
+// Polyfill roundRect
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x,y,w,h,r) {
+    if (typeof r === 'number') r = {tl:r,tr:r,br:r,bl:r};
+    this.moveTo(x+r.tl,y);
+    this.lineTo(x+w-r.tr,y); this.quadraticCurveTo(x+w,y,x+w,y+r.tr);
+    this.lineTo(x+w,y+h-r.br); this.quadraticCurveTo(x+w,y+h,x+w-r.br,y+h);
+    this.lineTo(x+r.bl,y+h); this.quadraticCurveTo(x,y+h,x,y+h-r.bl);
+    this.lineTo(x,y+r.tl); this.quadraticCurveTo(x,y,x+r.tl,y);
+    return this;
+  };
+}
+
+// Start
+initApp();
+</script>
+</body>
+</html>
